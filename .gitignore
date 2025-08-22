@@ -1,0 +1,57 @@
+# Dépendances
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Fichiers de production
+/frontend/build/
+/backend/dist/
+
+# Variables d'environnement
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Base de données locale (SQLite)
+/backend/database/*.db
+/backend/database/*.sqlite
+/backend/database/*.sqlite3
+
+# Logs
+logs
+*.log
+
+# Cache
+.cache/
+.npm/
+.eslintcache
+
+# Fichiers temporaires
+.tmp/
+temp/
+
+# Fichiers système
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+
+# IDE
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+
+# Uploads (fichiers uploadés par les utilisateurs)
+/backend/uploads/
+
+# Coverage reports
+coverage/
+
+# Build artifacts
+*.tgz
+*.tar.gz
