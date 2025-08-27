@@ -2,7 +2,6 @@ import './App.css';
 import React, { useState, createContext, useContext } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import Header from './components/Header';
-// import HeaderSimple from './components/HeaderSimple';
 
 // Contexte d'authentification
 const AuthContext = createContext();

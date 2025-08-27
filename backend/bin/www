@@ -12,7 +12,8 @@ var http = require('http');
  * Get port from environment and store in Express.
  */
 
-var port = normalizePort(process.env.PORT || '3000');
+var port = normalizePort(process.env.PORT || '5000');
+console.log('🔧 Configuration du port:', process.env.PORT, '-> Port utilisé:', port);
 app.set('port', port);
 
 /**
@@ -25,7 +26,8 @@ var server = http.createServer(app);
  * Listen on provided port, on all network interfaces.
  */
 
-server.listen(port);
+console.log('💫 Tentative de démarrage du serveur sur le port', port);
+server.listen(port, '0.0.0.0'); // Écouter explicitement sur IPv4
 server.on('error', onError);
 server.on('listening', onListening);
 
@@ -86,5 +88,7 @@ function onListening() {
   var bind = typeof addr === 'string'
     ? 'pipe ' + addr
     : 'port ' + addr.port;
+  console.log('🚀 Serveur backend démarré sur le port ' + addr.port);
+  console.log('🌐 Serveur en écoute sur:', addr);
   debug('Listening on ' + bind);
 }
