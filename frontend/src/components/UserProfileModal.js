@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './UserProfileModal.css';
 
 const UserProfileModal = ({ isOpen, onClose, user }) => {
   const [isEditing, setIsEditing] = useState(false);
+  const [isClosing, setIsClosing] = useState(false);
   const [formData, setFormData] = useState({
     prenom: user?.prenom || '',
     nom: user?.nom || '',
@@ -14,7 +15,21 @@ const UserProfileModal = ({ isOpen, onClose, user }) => {
     manager: user?.manager || 'Jean Dupont'
   });
 
-  if (!isOpen) return null;
+  useEffect(() => {
+    if (!isOpen) {
+      setIsClosing(false);
+    }
+  }, [isOpen]);
+
+  if (!isOpen && !isClosing) return null;
+
+  const handleClose = () => {
+    setIsClosing(true);
+    setTimeout(() => {
+      setIsClosing(false);
+      onClose();
+    }, 300); // Durée de l'animation de fermeture
+  };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -70,14 +85,14 @@ const UserProfileModal = ({ isOpen, onClose, user }) => {
   };
 
   return (
-    <div className="profile-modal-overlay" onClick={onClose}>
-      <div className="profile-modal" onClick={(e) => e.stopPropagation()}>
+    <div className={`profile-modal-overlay ${isClosing ? 'closing' : ''}`} onClick={handleClose}>
+      <div className={`profile-modal ${isClosing ? 'closing' : ''}`} onClick={(e) => e.stopPropagation()}>
         {/* Header */}
         <div className="profile-modal-header">
           <div className="profile-modal-title">
             <h2>Mon Profil</h2>
           </div>
-          <button className="close-btn" onClick={onClose}>
+          <button className="close-btn" onClick={handleClose}>
             ✕
           </button>
         </div>
@@ -261,7 +276,7 @@ const UserProfileModal = ({ isOpen, onClose, user }) => {
               </button>
             </div>
           ) : (
-            <button className="btn-close" onClick={onClose}>
+            <button className="btn-close" onClick={handleClose}>
               Fermer
             </button>
           )}

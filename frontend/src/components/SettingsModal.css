@@ -13,7 +13,11 @@
   justify-content: center;
   z-index: 9999;
   padding: 20px;
-  animation: fadeIn 0.3s ease-out;
+  animation: fadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.settings-modal-overlay.closing {
+  animation: fadeOut 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .settings-modal {
@@ -27,8 +31,13 @@
   max-width: 800px;
   max-height: 90vh;
   overflow: hidden;
-  animation: slideUp 0.4s ease-out;
+  animation: slideUp 0.5s cubic-bezier(0.4, 0, 0.2, 1);
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  transform-origin: center;
+}
+
+.settings-modal.closing {
+  animation: slideOut 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* Header */
@@ -333,31 +342,69 @@
 
 /* Animations */
 @keyframes fadeIn {
-  from {
+  0% {
     opacity: 0;
+    backdrop-filter: blur(0px);
+    -webkit-backdrop-filter: blur(0px);
   }
-  to {
+  100% {
     opacity: 1;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
   }
 }
 
 @keyframes slideUp {
-  from {
+  0% {
     opacity: 0;
-    transform: translateY(30px) scale(0.95);
+    transform: translateY(50px) scale(0.9);
+    backdrop-filter: blur(0px);
+    -webkit-backdrop-filter: blur(0px);
   }
-  to {
+  50% {
+    opacity: 0.8;
+    transform: translateY(20px) scale(0.95);
+  }
+  100% {
     opacity: 1;
     transform: translateY(0) scale(1);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+  }
+}
+
+@keyframes slideOut {
+  0% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-30px) scale(0.95);
+  }
+}
+
+@keyframes fadeOut {
+  0% {
+    opacity: 1;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
+  100% {
+    opacity: 0;
+    backdrop-filter: blur(0px);
+    -webkit-backdrop-filter: blur(0px);
   }
 }
 
 @keyframes pulse {
   0%, 100% {
     opacity: 1;
+    transform: scale(1);
   }
   50% {
-    opacity: 0.5;
+    opacity: 0.7;
+    transform: scale(1.05);
   }
 }
 

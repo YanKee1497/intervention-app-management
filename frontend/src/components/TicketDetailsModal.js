@@ -4,6 +4,80 @@ import './TicketDetailsModal.css';
 const TicketDetailsModal = ({ isOpen, onClose, ticket }) => {
   if (!isOpen || !ticket) return null;
 
+  const handleAddFile = () => {
+    // Créer un input file temporaire
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.multiple = true;
+    input.accept = '.pdf,.doc,.docx,.txt,.jpg,.jpeg,.png,.gif';
+    
+    input.onchange = (e) => {
+      const files = Array.from(e.target.files);
+      if (files.length > 0) {
+        const fileNames = files.map(f => f.name).join(', ');
+        alert(`Fichier(s) ajouté(s) au ticket ${ticket.id}:\n${fileNames}`);
+        console.log('Fichiers ajoutés:', files);
+      }
+    };
+    
+    input.click();
+  };
+
+  const handleAddComment = () => {
+    const comment = prompt('Ajouter un commentaire au ticket:', '');
+    if (comment && comment.trim()) {
+      alert(`Commentaire ajouté au ticket ${ticket.id}:\n"${comment}"`);
+      console.log('Commentaire ajouté:', { ticketId: ticket.id, comment });
+    }
+  };
+
+  const handlePrintTicket = () => {
+    // Simuler l'impression du ticket
+    const printContent = `
+      TICKET: ${ticket.id}
+      Sujet: ${ticket.subject}
+      Catégorie: ${ticket.category}
+      Statut: ${getStatusText(ticket.status)}
+      Date: ${new Date(ticket.createdAt).toLocaleDateString('fr-FR')}
+      
+      Description:
+      ${ticket.description || 'Aucune description'}
+    `;
+    
+    const printWindow = window.open('', '_blank');
+    printWindow.document.write(`
+      <html>
+        <head><title>Ticket ${ticket.id}</title></head>
+        <body style="font-family: Arial, sans-serif; padding: 20px;">
+          <pre>${printContent}</pre>
+        </body>
+      </html>
+    `);
+    printWindow.print();
+    printWindow.close();
+  };
+
+  const handleExportTicket = () => {
+    // Simuler l'export du ticket en JSON
+    const ticketData = {
+      ...ticket,
+      exportedAt: new Date().toISOString(),
+      exportedBy: 'Utilisateur actuel'
+    };
+    
+    const blob = new Blob([JSON.stringify(ticketData, null, 2)], { 
+      type: 'application/json' 
+    });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `ticket-${ticket.id}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+    
+    alert(`Ticket ${ticket.id} exporté avec succès !`);
+  };
+
   const getPriorityColor = (priority) => {
     switch (priority) {
       case 'urgent': return '#dc2626';
@@ -160,15 +234,39 @@ const TicketDetailsModal = ({ isOpen, onClose, ticket }) => {
 
         {/* Footer */}
         <div className="ticket-details-footer">
-          <button className="btn-secondary" onClick={onClose}>
-            Fermer
-          </button>
+          <div className="footer-left">
+            <button className="btn-secondary" onClick={onClose}>
+              Fermer
+            </button>
+          </div>
           <div className="footer-actions">
-            <button className="btn-outline">
+            <button 
+              className="btn-outline"
+              onClick={handleAddFile}
+              title="Ajouter un fichier au ticket"
+            >
               📎 Ajouter un fichier
             </button>
-            <button className="btn-outline">
+            <button 
+              className="btn-outline"
+              onClick={handleAddComment}
+              title="Ajouter un commentaire"
+            >
               💬 Ajouter un commentaire
+            </button>
+            <button 
+              className="btn-outline"
+              onClick={handlePrintTicket}
+              title="Imprimer le ticket"
+            >
+              🖨️ Imprimer
+            </button>
+            <button 
+              className="btn-outline"
+              onClick={handleExportTicket}
+              title="Exporter le ticket"
+            >
+              📤 Exporter
             </button>
           </div>
         </div>

@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './SettingsModal.css';
 
 const SettingsModal = ({ isOpen, onClose }) => {
+  const [isClosing, setIsClosing] = useState(false);
   const [settings, setSettings] = useState({
     // Préférences générales
     theme: 'light', // light, dark, auto
@@ -35,7 +36,21 @@ const SettingsModal = ({ isOpen, onClose }) => {
 
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
 
-  if (!isOpen) return null;
+  useEffect(() => {
+    if (!isOpen) {
+      setIsClosing(false);
+    }
+  }, [isOpen]);
+
+  if (!isOpen && !isClosing) return null;
+
+  const handleClose = () => {
+    setIsClosing(true);
+    setTimeout(() => {
+      setIsClosing(false);
+      onClose();
+    }, 300); // Durée de l'animation de fermeture
+  };
 
   const handleSettingChange = (key, value) => {
     setSettings(prev => ({
@@ -79,20 +94,20 @@ const SettingsModal = ({ isOpen, onClose }) => {
     }
   };
 
-  const handleClose = () => {
+  const handleCloseWithConfirmation = () => {
     if (hasUnsavedChanges) {
       if (window.confirm('Vous avez des modifications non sauvegardées. Voulez-vous vraiment fermer ?')) {
-        onClose();
+        handleClose();
         setHasUnsavedChanges(false);
       }
     } else {
-      onClose();
+      handleClose();
     }
   };
 
   return (
-    <div className="settings-modal-overlay" onClick={handleClose}>
-      <div className="settings-modal" onClick={(e) => e.stopPropagation()}>
+    <div className={`settings-modal-overlay ${isClosing ? 'closing' : ''}`} onClick={handleCloseWithConfirmation}>
+      <div className={`settings-modal ${isClosing ? 'closing' : ''}`} onClick={(e) => e.stopPropagation()}>
         {/* Header */}
         <div className="settings-modal-header">
           <div className="settings-modal-title">
@@ -101,7 +116,7 @@ const SettingsModal = ({ isOpen, onClose }) => {
               <span className="unsaved-indicator">●</span>
             )}
           </div>
-          <button className="close-btn" onClick={handleClose}>
+          <button className="close-btn" onClick={handleCloseWithConfirmation}>
             ✕
           </button>
         </div>
@@ -416,7 +431,7 @@ const SettingsModal = ({ isOpen, onClose }) => {
         {/* Footer */}
         <div className="settings-modal-footer">
           <div className="footer-actions">
-            <button className="btn-cancel" onClick={handleClose}>
+            <button className="btn-cancel" onClick={handleCloseWithConfirmation}>
               Annuler
             </button>
             <button 

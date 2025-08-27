@@ -79,7 +79,7 @@
 .search-input {
   width: 100%;
   height: 40px;
-  padding: 0 16px 0 40px;
+  padding: 0 40px 0 40px;
   border: 1px solid #d1d5db;
   border-radius: 8px;
   background: #f9fafb;
@@ -94,6 +94,32 @@
   border-color: #3b82f6;
   background: #ffffff;
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.search-clear {
+  position: absolute;
+  right: 8px;
+  background: none;
+  border: none;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #6b7280;
+  font-size: 14px;
+  transition: all 0.2s ease;
+}
+
+.search-clear:hover {
+  background: #f3f4f6;
+  color: #374151;
+}
+
+.search-form {
+  width: 100%;
 }
 
 .search-input::placeholder {
@@ -479,6 +505,80 @@
 
 .view-all-btn:hover {
   background: #ffffff;
+}
+
+/* Language Dropdown */
+.language-container {
+  position: relative;
+}
+
+.language-dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  width: 200px;
+  z-index: 1000;
+  animation: slideDown 0.3s ease-out;
+}
+
+.language-header {
+  padding: 16px 16px 8px 16px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.language-header h3 {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: #374151;
+}
+
+.language-list {
+  padding: 8px 0;
+}
+
+.language-item {
+  width: 100%;
+  padding: 12px 16px;
+  background: none;
+  border: none;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  font-size: 14px;
+  color: #374151;
+}
+
+.language-item:hover {
+  background: rgba(99, 102, 241, 0.1);
+}
+
+.language-item.active {
+  background: rgba(99, 102, 241, 0.15);
+  color: #6366f1;
+  font-weight: 600;
+}
+
+.language-flag {
+  font-size: 16px;
+}
+
+.language-name {
+  flex: 1;
+  text-align: left;
+}
+
+.language-check {
+  color: #10b981;
+  font-weight: bold;
 }
 
 /* Responsive */

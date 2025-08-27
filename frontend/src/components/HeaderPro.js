@@ -8,9 +8,12 @@ function HeaderPro({ user, notifications = 0, onLogout, onProfileClick, onSettin
   const [showNotifications, setShowNotifications] = useState(false);
   const [showProfileModal, setShowProfileModal] = useState(false);
   const [showSettingsModal, setShowSettingsModal] = useState(false);
+  const [showLanguageMenu, setShowLanguageMenu] = useState(false);
+  const [currentLanguage, setCurrentLanguage] = useState('fr');
   const [searchTerm, setSearchTerm] = useState('');
   const profileMenuRef = useRef(null);
   const notificationsRef = useRef(null);
+  const languageMenuRef = useRef(null);
 
   // Fermer les menus si on clique ailleurs
   useEffect(() => {
@@ -20,6 +23,9 @@ function HeaderPro({ user, notifications = 0, onLogout, onProfileClick, onSettin
       }
       if (notificationsRef.current && !notificationsRef.current.contains(event.target)) {
         setShowNotifications(false);
+      }
+      if (languageMenuRef.current && !languageMenuRef.current.contains(event.target)) {
+        setShowLanguageMenu(false);
       }
     }
 
@@ -38,11 +44,37 @@ function HeaderPro({ user, notifications = 0, onLogout, onProfileClick, onSettin
   const handleProfileToggle = () => {
     setShowProfileMenu(!showProfileMenu);
     setShowNotifications(false); // Fermer les notifications si ouvertes
+    setShowLanguageMenu(false); // Fermer les langues si ouvert
   };
 
   const handleNotificationsToggle = () => {
     setShowNotifications(!showNotifications);
     setShowProfileMenu(false); // Fermer le profil si ouvert
+    setShowLanguageMenu(false); // Fermer les langues si ouvert
+  };
+
+  const handleLanguageToggle = () => {
+    setShowLanguageMenu(!showLanguageMenu);
+    setShowProfileMenu(false); // Fermer le profil si ouvert
+    setShowNotifications(false); // Fermer les notifications si ouvertes
+  };
+
+  const handleLanguageChange = (langCode) => {
+    setCurrentLanguage(langCode);
+    setShowLanguageMenu(false);
+    // Ici on pourrait appeler une fonction pour changer la langue de l'app
+    console.log('Langue changée vers:', langCode);
+  };
+
+  const languages = [
+    { code: 'fr', name: 'Français', flag: '🇫🇷' },
+    { code: 'en', name: 'English', flag: '🇺🇸' },
+    { code: 'es', name: 'Español', flag: '🇪🇸' },
+    { code: 'de', name: 'Deutsch', flag: '🇩🇪' }
+  ];
+
+  const getCurrentLanguage = () => {
+    return languages.find(lang => lang.code === currentLanguage) || languages[0];
   };
 
   // Données de démonstration pour les notifications
@@ -91,12 +123,30 @@ function HeaderPro({ user, notifications = 0, onLogout, onProfileClick, onSettin
 
   const handleNotificationClick = (notificationId) => {
     console.log('Notification cliquée:', notificationId);
-    // Ici on pourrait marquer la notification comme lue
+    // Marquer la notification comme lue
+    const updatedNotifications = mockNotifications.map(notif => 
+      notif.id === notificationId 
+        ? { ...notif, unread: false }
+        : notif
+    );
+    // Ici on mettrait à jour l'état global des notifications
+    alert(`Notification ${notificationId} marquée comme lue !`);
   };
 
   const handleMarkAllAsRead = () => {
     console.log('Marquer toutes les notifications comme lues');
-    // Ici on pourrait marquer toutes les notifications comme lues
+    // Marquer toutes les notifications comme lues
+    const updatedNotifications = mockNotifications.map(notif => ({
+      ...notif,
+      unread: false
+    }));
+    alert('Toutes les notifications ont été marquées comme lues !');
+  };
+
+  const handleViewAllNotifications = () => {
+    console.log('Voir toutes les notifications');
+    setShowNotifications(false);
+    alert('Redirection vers la page des notifications...');
   };
 
   const getNotificationIcon = (type) => {
@@ -139,6 +189,20 @@ function HeaderPro({ user, notifications = 0, onLogout, onProfileClick, onSettin
     }
   };
 
+  const handleSearchSubmit = (e) => {
+    e.preventDefault();
+    if (searchTerm.trim() && onSearch) {
+      onSearch(searchTerm.trim());
+    }
+  };
+
+  const clearSearch = () => {
+    setSearchTerm('');
+    if (onSearch) {
+      onSearch('');
+    }
+  };
+
   const getUserDisplayName = () => {
     if (user?.prenom && user?.nom) {
       return `${user.prenom} ${user.nom}`;
@@ -167,16 +231,28 @@ function HeaderPro({ user, notifications = 0, onLogout, onProfileClick, onSettin
 
           {/* Champ de recherche global */}
           <div className="search-container">
-            <div className="search-input-wrapper">
-              <span className="search-icon">🔍</span>
-              <input 
-                type="text"
-                className="search-input"
-                placeholder="Rechercher un ticket…"
-                value={searchTerm}
-                onChange={handleSearchChange}
-              />
-            </div>
+            <form onSubmit={handleSearchSubmit} className="search-form">
+              <div className="search-input-wrapper">
+                <span className="search-icon">🔍</span>
+                <input 
+                  type="text"
+                  className="search-input"
+                  placeholder="Rechercher tickets, utilisateurs, ID..."
+                  value={searchTerm}
+                  onChange={handleSearchChange}
+                />
+                {searchTerm && (
+                  <button 
+                    type="button" 
+                    className="search-clear"
+                    onClick={clearSearch}
+                    title="Effacer la recherche"
+                  >
+                    ✕
+                  </button>
+                )}
+              </div>
+            </form>
           </div>
         </div>
 
@@ -232,7 +308,10 @@ function HeaderPro({ user, notifications = 0, onLogout, onProfileClick, onSettin
                 </div>
 
                 <div className="notifications-footer">
-                  <button className="view-all-btn">
+                  <button 
+                    className="view-all-btn"
+                    onClick={handleViewAllNotifications}
+                  >
                     Voir toutes les notifications
                   </button>
                 </div>
@@ -240,11 +319,39 @@ function HeaderPro({ user, notifications = 0, onLogout, onProfileClick, onSettin
             )}
           </div>
 
-          {/* Langue (optionnel) */}
-          <div className="header-item">
-            <button className="icon-btn" title="Langue">
-              <span className="icon">🌍</span>
+          {/* Langue */}
+          <div className="header-item language-container" ref={languageMenuRef}>
+            <button 
+              className={`icon-btn ${showLanguageMenu ? 'active' : ''}`} 
+              onClick={handleLanguageToggle}
+              title="Changer la langue"
+            >
+              <span className="icon">{getCurrentLanguage().flag}</span>
             </button>
+
+            {/* Dropdown des langues */}
+            {showLanguageMenu && (
+              <div className="language-dropdown">
+                <div className="language-header">
+                  <h3>Langue / Language</h3>
+                </div>
+                <div className="language-list">
+                  {languages.map((language) => (
+                    <button
+                      key={language.code}
+                      className={`language-item ${currentLanguage === language.code ? 'active' : ''}`}
+                      onClick={() => handleLanguageChange(language.code)}
+                    >
+                      <span className="language-flag">{language.flag}</span>
+                      <span className="language-name">{language.name}</span>
+                      {currentLanguage === language.code && (
+                        <span className="language-check">✓</span>
+                      )}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Profil utilisateur */}

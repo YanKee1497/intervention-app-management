@@ -18,6 +18,7 @@ function TicketsDashboard() {
   const [filteredTickets, setFilteredTickets] = useState([]);
   const [selectedStatus, setSelectedStatus] = useState('all');
   const [selectedCategory, setSelectedCategory] = useState('all');
+  const [searchTerm, setSearchTerm] = useState('');
   const [entriesPerPage, setEntriesPerPage] = useState(10);
   const [currentPage, setCurrentPage] = useState(1);
   const [isNewTicketModalOpen, setIsNewTicketModalOpen] = useState(false);
@@ -87,6 +88,46 @@ function TicketsDashboard() {
     setFilteredTickets(mockTickets);
   }, []);
 
+  // Gestion des raccourcis clavier
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      // Ctrl/Cmd + N : Nouveau ticket
+      if ((e.ctrlKey || e.metaKey) && e.key === 'n') {
+        e.preventDefault();
+        handleNewTicketClick();
+      }
+      // Escape : Fermer les modales
+      if (e.key === 'Escape') {
+        if (isNewTicketModalOpen) {
+          setIsNewTicketModalOpen(false);
+        }
+        if (isTicketDetailsModalOpen) {
+          handleCloseTicketDetails();
+        }
+      }
+      // Ctrl/Cmd + F : Focus sur la recherche
+      if ((e.ctrlKey || e.metaKey) && e.key === 'f') {
+        e.preventDefault();
+        // Envoyer un événement pour focus sur la recherche du header
+        const searchInput = document.querySelector('.search-input');
+        if (searchInput) {
+          searchInput.focus();
+        }
+      }
+      // Ctrl/Cmd + R : Actualiser les données
+      if ((e.ctrlKey || e.metaKey) && e.key === 'r') {
+        e.preventDefault();
+        console.log('Actualisation des données...');
+        alert('Données actualisées !');
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isNewTicketModalOpen, isTicketDetailsModalOpen]);
+
   // Calcul des statistiques
   const getStats = () => {
     return {
@@ -111,9 +152,26 @@ function TicketsDashboard() {
       filtered = filtered.filter(ticket => ticket.category === selectedCategory);
     }
 
+    // Filtre par recherche
+    if (searchTerm.trim()) {
+      const searchLower = searchTerm.toLowerCase();
+      filtered = filtered.filter(ticket => 
+        ticket.id.toLowerCase().includes(searchLower) ||
+        ticket.subject.toLowerCase().includes(searchLower) ||
+        ticket.description.toLowerCase().includes(searchLower) ||
+        ticket.category.toLowerCase().includes(searchLower) ||
+        ticket.status.toLowerCase().includes(searchLower)
+      );
+    }
+
     setFilteredTickets(filtered);
     setCurrentPage(1);
-  }, [selectedStatus, selectedCategory, tickets]);
+  }, [selectedStatus, selectedCategory, searchTerm, tickets]);
+
+  // Fonction de gestion de la recherche depuis le header
+  const handleSearch = (term) => {
+    setSearchTerm(term);
+  };
 
   // Pagination
   const totalPages = Math.ceil(filteredTickets.length / entriesPerPage);
@@ -201,6 +259,7 @@ function TicketsDashboard() {
         user={user}
         notifications={2} // Nombre de notifications non lues
         onLogout={handleLogout}
+        onSearch={handleSearch}
       />
 
       {/* Main Content */}
@@ -297,6 +356,23 @@ function TicketsDashboard() {
               </button>
             </div>
           </div>
+
+          {/* Indicateur de recherche */}
+          {searchTerm && (
+            <div className="search-indicator">
+              <span className="search-info">
+                🔍 Recherche pour "<strong>{searchTerm}</strong>" 
+                - {filteredTickets.length} résultat(s) trouvé(s)
+              </span>
+              <button 
+                className="clear-search-btn"
+                onClick={() => setSearchTerm('')}
+                title="Effacer la recherche"
+              >
+                ✕
+              </button>
+            </div>
+          )}
 
           {/* Tableau des tickets */}
           <div className="table-container">
@@ -399,10 +475,17 @@ function TicketsDashboard() {
       <button 
         className="fab-btn"
         onClick={handleNewTicketClick}
-        title="Nouvelle demande"
+        title="Nouvelle demande (Ctrl+N)"
       >
         +
       </button>
+
+      {/* Raccourcis clavier - Aide */}
+      <div className="keyboard-shortcuts-hint">
+        <span className="shortcuts-text">
+          💡 <strong>Ctrl+N</strong> Nouveau ticket • <strong>Ctrl+F</strong> Rechercher • <strong>Esc</strong> Fermer
+        </span>
+      </div>
 
       {/* Modale Nouvelle demande */}
       <NewTicketModal

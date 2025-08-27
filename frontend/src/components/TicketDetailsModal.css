@@ -254,9 +254,15 @@
   background: #f9fafb;
 }
 
+.footer-left {
+  display: flex;
+  align-items: center;
+}
+
 .footer-actions {
   display: flex;
   gap: 8px;
+  flex-wrap: wrap;
 }
 
 /* Buttons */
@@ -325,9 +331,25 @@
 
   .footer-actions {
     justify-content: center;
+    flex-wrap: wrap;
   }
 
   .btn-outline {
     justify-content: center;
+    min-width: 120px;
+  }
+}
+
+/* Additional responsive styles */
+@media (max-width: 480px) {
+  .footer-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+  
+  .btn-outline {
+    font-size: 12px;
+    padding: 8px 6px;
   }
 }
