@@ -199,7 +199,7 @@ function TicketsDashboard() {
       {/* Header */}
       <HeaderPro 
         user={user}
-        notifications={5}
+        notifications={2} // Nombre de notifications non lues
         onLogout={handleLogout}
       />
 

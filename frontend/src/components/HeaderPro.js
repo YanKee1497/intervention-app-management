@@ -3,14 +3,19 @@ import './HeaderPro.css';
 
 function HeaderPro({ user, notifications = 0, onLogout, onProfileClick, onSettingsClick, onSearch }) {
   const [showProfileMenu, setShowProfileMenu] = useState(false);
+  const [showNotifications, setShowNotifications] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const profileMenuRef = useRef(null);
+  const notificationsRef = useRef(null);
 
-  // Fermer le menu si on clique ailleurs
+  // Fermer les menus si on clique ailleurs
   useEffect(() => {
     function handleClickOutside(event) {
       if (profileMenuRef.current && !profileMenuRef.current.contains(event.target)) {
         setShowProfileMenu(false);
+      }
+      if (notificationsRef.current && !notificationsRef.current.contains(event.target)) {
+        setShowNotifications(false);
       }
     }
 
@@ -28,6 +33,77 @@ function HeaderPro({ user, notifications = 0, onLogout, onProfileClick, onSettin
 
   const handleProfileToggle = () => {
     setShowProfileMenu(!showProfileMenu);
+    setShowNotifications(false); // Fermer les notifications si ouvertes
+  };
+
+  const handleNotificationsToggle = () => {
+    setShowNotifications(!showNotifications);
+    setShowProfileMenu(false); // Fermer le profil si ouvert
+  };
+
+  // Données de démonstration pour les notifications
+  const mockNotifications = [
+    {
+      id: 1,
+      title: 'Nouveau ticket assigné',
+      message: 'Le ticket TCK-007 vous a été assigné',
+      time: '5 min',
+      type: 'assignment',
+      unread: true
+    },
+    {
+      id: 2,
+      title: 'Ticket résolu',
+      message: 'Le ticket TCK-003 a été marqué comme résolu',
+      time: '1h',
+      type: 'resolution',
+      unread: true
+    },
+    {
+      id: 3,
+      title: 'Nouveau commentaire',
+      message: 'Un commentaire a été ajouté sur TCK-001',
+      time: '2h',
+      type: 'comment',
+      unread: false
+    },
+    {
+      id: 4,
+      title: 'Maintenance planifiée',
+      message: 'Maintenance serveur prévue demain à 14h',
+      time: '3h',
+      type: 'maintenance',
+      unread: false
+    },
+    {
+      id: 5,
+      title: 'Mise à jour système',
+      message: 'Le système sera mis à jour ce weekend',
+      time: '1j',
+      type: 'system',
+      unread: false
+    }
+  ];
+
+  const handleNotificationClick = (notificationId) => {
+    console.log('Notification cliquée:', notificationId);
+    // Ici on pourrait marquer la notification comme lue
+  };
+
+  const handleMarkAllAsRead = () => {
+    console.log('Marquer toutes les notifications comme lues');
+    // Ici on pourrait marquer toutes les notifications comme lues
+  };
+
+  const getNotificationIcon = (type) => {
+    switch (type) {
+      case 'assignment': return '📋';
+      case 'resolution': return '✅';
+      case 'comment': return '💬';
+      case 'maintenance': return '🔧';
+      case 'system': return '⚙️';
+      default: return '🔔';
+    }
   };
 
   const handleMenuItemClick = (action) => {
@@ -89,13 +165,61 @@ function HeaderPro({ user, notifications = 0, onLogout, onProfileClick, onSettin
         {/* Section droite - Notifications et profil */}
         <div className="header-right">
           {/* Notifications */}
-          <div className="header-item">
-            <button className="icon-btn" title="Notifications">
+          <div className="header-item notification-container" ref={notificationsRef}>
+            <button 
+              className={`icon-btn ${showNotifications ? 'active' : ''}`} 
+              onClick={handleNotificationsToggle}
+              title="Notifications"
+            >
               <span className="icon">🔔</span>
               {notifications > 0 && (
                 <span className="notification-badge">{notifications}</span>
               )}
             </button>
+
+            {/* Dropdown des notifications */}
+            {showNotifications && (
+              <div className="notifications-dropdown">
+                <div className="notifications-header">
+                  <h3>Notifications</h3>
+                  <button 
+                    className="mark-all-read-btn"
+                    onClick={handleMarkAllAsRead}
+                    title="Marquer tout comme lu"
+                  >
+                    ✓
+                  </button>
+                </div>
+
+                <div className="notifications-list">
+                  {mockNotifications.map((notification) => (
+                    <div 
+                      key={notification.id}
+                      className={`notification-item ${notification.unread ? 'unread' : ''}`}
+                      onClick={() => handleNotificationClick(notification.id)}
+                    >
+                      <div className="notification-icon">
+                        {getNotificationIcon(notification.type)}
+                      </div>
+                      <div className="notification-content">
+                        <div className="notification-title">{notification.title}</div>
+                        <div className="notification-message">{notification.message}</div>
+                        <div className="notification-time">{notification.time}</div>
+                      </div>
+                      {notification.unread && (
+                        <div className="unread-indicator"></div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+
+                <div className="notifications-footer">
+                  <button className="view-all-btn">
+                    Voir toutes les notifications
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Langue (optionnel) */}
