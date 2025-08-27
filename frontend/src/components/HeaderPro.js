@@ -124,11 +124,11 @@ function HeaderPro({ user, notifications = 0, onLogout, onProfileClick, onSettin
   const handleNotificationClick = (notificationId) => {
     console.log('Notification cliquée:', notificationId);
     // Marquer la notification comme lue
-    const updatedNotifications = mockNotifications.map(notif => 
-      notif.id === notificationId 
-        ? { ...notif, unread: false }
-        : notif
-    );
+    mockNotifications.forEach(notif => {
+      if (notif.id === notificationId) {
+        notif.unread = false;
+      }
+    });
     // Ici on mettrait à jour l'état global des notifications
     alert(`Notification ${notificationId} marquée comme lue !`);
   };
@@ -136,10 +136,9 @@ function HeaderPro({ user, notifications = 0, onLogout, onProfileClick, onSettin
   const handleMarkAllAsRead = () => {
     console.log('Marquer toutes les notifications comme lues');
     // Marquer toutes les notifications comme lues
-    const updatedNotifications = mockNotifications.map(notif => ({
-      ...notif,
-      unread: false
-    }));
+    mockNotifications.forEach(notif => {
+      notif.unread = false;
+    });
     alert('Toutes les notifications ont été marquées comme lues !');
   };
 
@@ -170,7 +169,12 @@ function HeaderPro({ user, notifications = 0, onLogout, onProfileClick, onSettin
       setShowSettingsModal(true);
       if (onSettingsClick) onSettingsClick();
     }
-    if (action === 'logout' && onLogout) onLogout();
+    if (action === 'logout' && onLogout) {
+      // Confirmation de déconnexion
+      if (window.confirm('🚪 Êtes-vous sûr de vouloir vous déconnecter ?')) {
+        onLogout();
+      }
+    }
   };
 
   const handleCloseProfileModal = () => {

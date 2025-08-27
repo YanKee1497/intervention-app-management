@@ -49,7 +49,7 @@ const SettingsModal = ({ isOpen, onClose }) => {
     setTimeout(() => {
       setIsClosing(false);
       onClose();
-    }, 300); // Durée de l'animation de fermeture
+    }, 150); // Durée de l'animation de fermeture plus rapide
   };
 
   const handleSettingChange = (key, value) => {

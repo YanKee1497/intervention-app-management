@@ -1,11 +1,114 @@
 import React, { useState, useEffect } from 'react';
+import { useAuth } from '../context/AuthContext';
 import HeaderPro from '../components/HeaderPro';
 import NewTicketModal from '../components/NewTicketModal';
 import TicketDetailsModal from '../components/TicketDetailsModal';
 import './TicketsDashboard.css';
 
+// Données de démonstration
+const mockTickets = [
+  {
+    id: 'TCK-001',
+    subject: 'Problème réseau bureau 204',
+    status: 'ouvert',
+    priority: 'haute',
+    category: 'technique',
+    author: 'Marie Dupont',
+    assignedTo: 'Jean Martin',
+    createdAt: '2024-03-15',
+    dueDate: '2024-03-20',
+    description: 'Les ordinateurs du bureau 204 n\'arrivent plus à se connecter au réseau interne.'
+  },
+  {
+    id: 'TCK-002',
+    subject: 'Demande accès logiciel comptabilité',
+    status: 'en_cours',
+    priority: 'moyenne',
+    category: 'acces',
+    author: 'Pierre Rousseau',
+    assignedTo: 'Sophie Chen',
+    createdAt: '2024-03-14',
+    dueDate: '2024-03-18',
+    description: 'Besoin d\'un accès au logiciel de comptabilité pour le nouveau comptable.'
+  },
+  {
+    id: 'TCK-003',
+    subject: 'Maintenance serveur principal',
+    status: 'resolu',
+    priority: 'haute',
+    category: 'maintenance',
+    author: 'Admin Système',
+    assignedTo: 'Alex Bernard',
+    createdAt: '2024-03-10',
+    dueDate: '2024-03-15',
+    description: 'Maintenance programmée du serveur principal pour mise à jour sécurité.'
+  },
+  {
+    id: 'TCK-004',
+    subject: 'Formation utilisateurs Office 365',
+    status: 'ouvert',
+    priority: 'basse',
+    category: 'formation',
+    author: 'RH Service',
+    assignedTo: 'Lisa Wang',
+    createdAt: '2024-03-12',
+    dueDate: '2024-03-25',
+    description: 'Organisation d\'une formation Office 365 pour les nouveaux employés.'
+  },
+  {
+    id: 'TCK-005',
+    subject: 'Installation poste de travail',
+    status: 'en_cours',
+    priority: 'moyenne',
+    category: 'materiel',
+    author: 'Thomas Loire',
+    assignedTo: 'Jean Martin',
+    createdAt: '2024-03-13',
+    dueDate: '2024-03-17',
+    description: 'Installation complète d\'un nouveau poste de travail pour un nouvel employé.'
+  },
+  {
+    id: 'TCK-006',
+    subject: 'Sauvegarde données projet X',
+    status: 'ouvert',
+    priority: 'haute',
+    category: 'sauvegarde',
+    author: 'Chef Projet',
+    assignedTo: 'Alex Bernard',
+    createdAt: '2024-03-16',
+    dueDate: '2024-03-18',
+    description: 'Mise en place d\'une solution de sauvegarde pour les données critiques du projet X.'
+  },
+  {
+    id: 'TCK-007',
+    subject: 'Réparation imprimante 3ème étage',
+    status: 'ferme',
+    priority: 'basse',
+    category: 'materiel',
+    author: 'Secrétariat',
+    assignedTo: 'Sophie Chen',
+    createdAt: '2024-03-11',
+    dueDate: '2024-03-14',
+    description: 'L\'imprimante du 3ème étage ne fonctionne plus. Bourrage papier récurrent.'
+  },
+  {
+    id: 'TCK-008',
+    subject: 'Configuration VPN télétravail',
+    status: 'en_cours',
+    priority: 'moyenne',
+    category: 'reseau',
+    author: 'Direction IT',
+    assignedTo: 'Lisa Wang',
+    createdAt: '2024-03-09',
+    dueDate: '2024-03-20',
+    description: 'Configuration du VPN pour permettre le télétravail sécurisé.'
+  }
+];
+
 function TicketsDashboard() {
-  const [user] = useState({
+  const { user: authUser, logout } = useAuth();
+  
+  const [user] = useState(authUser || {
     id: 1,
     email: 'admin@entreprise.com',
     nom: 'Administrateur',
@@ -24,64 +127,6 @@ function TicketsDashboard() {
   const [isNewTicketModalOpen, setIsNewTicketModalOpen] = useState(false);
   const [isTicketDetailsModalOpen, setIsTicketDetailsModalOpen] = useState(false);
   const [selectedTicket, setSelectedTicket] = useState(null);
-
-  // Données de démonstration
-  const mockTickets = [
-    {
-      id: 'TCK-001',
-      subject: 'Problème réseau bureau 204',
-      category: 'Support',
-      status: 'en_attente',
-      createdAt: '2025-08-27',
-      priority: 'normal',
-      description: 'Le réseau est instable dans le bureau 204. Les connexions se coupent régulièrement et la vitesse est très lente.'
-    },
-    {
-      id: 'TCK-002',
-      subject: 'Installation logiciel comptabilité',
-      category: 'Installation',
-      status: 'en_cours',
-      createdAt: '2025-08-26',
-      priority: 'urgent',
-      description: 'Besoin d\'installer le logiciel de comptabilité SAP sur 5 postes du service comptabilité.'
-    },
-    {
-      id: 'TCK-003',
-      subject: 'Bug application mobile',
-      category: 'Bug',
-      status: 'resolu',
-      createdAt: '2025-08-25',
-      priority: 'normal',
-      description: 'L\'application mobile plante au démarrage sur les appareils Android version 12+'
-    },
-    {
-      id: 'TCK-004',
-      subject: 'Demande accès serveur',
-      category: 'Support',
-      status: 'non_pris_en_charge',
-      createdAt: '2025-08-24',
-      priority: 'faible',
-      description: 'Demande d\'accès au serveur de fichiers partagés pour le nouvel employé.'
-    },
-    {
-      id: 'TCK-005',
-      subject: 'Écran qui clignote',
-      category: 'Support',
-      status: 'en_attente',
-      createdAt: '2025-08-27',
-      priority: 'urgent',
-      description: 'L\'écran principal clignote constamment, impossible de travailler correctement.'
-    },
-    {
-      id: 'TCK-006',
-      subject: 'Configuration VPN',
-      category: 'Installation',
-      status: 'en_cours',
-      createdAt: '2025-08-26',
-      priority: 'normal',
-      description: 'Configuration du VPN pour permettre le télétravail sécurisé.'
-    }
-  ];
 
   useEffect(() => {
     setTickets(mockTickets);
@@ -193,6 +238,10 @@ function TicketsDashboard() {
 
   const handleLogout = () => {
     console.log('Déconnexion...');
+    // Confirmation avant déconnexion
+    if (window.confirm('Êtes-vous sûr de vouloir vous déconnecter ?')) {
+      logout();
+    }
   };
 
   // Handlers pour les actions sur les tickets

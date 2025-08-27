@@ -1,21 +1,10 @@
 import './App.css';
-import React, { useState, createContext, useContext } from 'react';
+import React, { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import TicketsDashboard from './pages/TicketsDashboard';
+import { useAuth, AuthProvider } from './context/AuthContext';
 // import Header from './components/Header';
 // import HeaderSimple from './components/HeaderSimple';
-
-// Contexte d'authentification
-const AuthContext = createContext();
-
-// Hook pour utiliser le contexte d'authentification
-export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return context;
-};
 
 // Composant de connexion simplifié (mode local)
 function SimpleLogin() {
@@ -196,98 +185,6 @@ function ProtectedRoute({ children }) {
   const { user } = useAuth();
   console.log('🔍 ProtectedRoute - user:', user);
   return user ? children : <Navigate to="/login" />;
-}
-
-// Fournisseur de contexte d'authentification
-function AuthProvider({ children }) {
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(false);
-
-  console.log('🔍 AuthProvider - user actuel:', user);
-
-  const login = async (email, password) => {
-    setLoading(true);
-    console.log('🔄 MODE LOCAL - Connexion avec:', { email, password: '***' });
-    
-    try {
-      // Simulation d'un délai réseau
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
-      // Données utilisateur en dur selon l'email
-      let userData;
-      if (email.includes('admin')) {
-        userData = {
-          id: 1,
-          email: email,
-          nom: 'Administrateur',
-          prenom: 'Admin',
-          role: 'admin'
-        };
-      } else if (email.includes('manager')) {
-        userData = {
-          id: 2,
-          email: email,
-          nom: 'Dupont',
-          prenom: 'Manager',
-          role: 'manager'
-        };
-      } else if (email.includes('technicien')) {
-        userData = {
-          id: 3,
-          email: email,
-          nom: 'Martin',
-          prenom: 'Technicien',
-          role: 'technician'
-        };
-      } else {
-        userData = {
-          id: 4,
-          email: email,
-          nom: 'Durand',
-          prenom: 'Employé',
-          role: 'employee'
-        };
-      }
-      
-      console.log('✅ MODE LOCAL - Connexion réussie:', userData);
-      
-      setUser(userData);
-      localStorage.setItem('token', 'mock-token-' + Date.now());
-      return { user: userData, token: 'mock-token' };
-    } catch (error) {
-      console.error('💥 Erreur de connexion:', error);
-      throw error;
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const logout = () => {
-    console.log('🚪 Déconnexion');
-    setUser(null);
-    localStorage.removeItem('token');
-  };
-
-  // Vérification du token au démarrage
-  React.useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (token && token.startsWith('mock-token')) {
-      console.log('🔍 Token trouvé, connexion automatique');
-      setUser({
-        id: 1,
-        email: 'user@entreprise.com',
-        nom: 'Utilisateur',
-        prenom: 'Demo',
-        role: 'employee'
-      });
-    }
-  }, []);
-
-  return (
-    <AuthContext.Provider value={{ user, login, logout, loading }}>
-      {children}
-    </AuthContext.Provider>
-  );
 }
 
 // Composant principal

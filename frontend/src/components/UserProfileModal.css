@@ -1,4 +1,14 @@
-/* UserProfileModal.css */
+/* UserProfileM  animation: fadeIn 0.  animation: slideUp 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  transform-origin: center;
+}
+
+.profile-modal.closing {
+  animation: slideOut 0.15s cubic-bezier(0.55, 0.085, 0.68, 0.53);c-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.profile-modal-overlay.closing {
+  animation: fadeOut 0.15s cubic-bezier(0.55, 0.085, 0.68, 0.53);css */
 .profile-modal-overlay {
   position: fixed;
   top: 0;
@@ -13,11 +23,11 @@
   justify-content: center;
   z-index: 9999;
   padding: 20px;
-  animation: fadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  animation: fadeIn 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .profile-modal-overlay.closing {
-  animation: fadeOut 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  animation: fadeOut 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .profile-modal {
@@ -31,13 +41,13 @@
   max-width: 700px;
   max-height: 90vh;
   overflow: hidden;
-  animation: slideUp 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  animation: slideUp 0.6s cubic-bezier(0.4, 0, 0.2, 1);
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   transform-origin: center;
 }
 
 .profile-modal.closing {
-  animation: slideOut 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  animation: slideOut 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* Header */
@@ -399,13 +409,9 @@
 @keyframes slideUp {
   0% {
     opacity: 0;
-    transform: translateY(50px) scale(0.9);
+    transform: translateY(20px) scale(0.98);
     backdrop-filter: blur(0px);
     -webkit-backdrop-filter: blur(0px);
-  }
-  50% {
-    opacity: 0.8;
-    transform: translateY(20px) scale(0.95);
   }
   100% {
     opacity: 1;
@@ -419,10 +425,14 @@
   0% {
     opacity: 1;
     transform: translateY(0) scale(1);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
   }
   100% {
     opacity: 0;
-    transform: translateY(-30px) scale(0.95);
+    transform: translateY(-15px) scale(0.98);
+    backdrop-filter: blur(0px);
+    -webkit-backdrop-filter: blur(0px);
   }
 }
 
