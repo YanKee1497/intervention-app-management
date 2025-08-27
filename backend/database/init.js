@@ -55,7 +55,7 @@ const initDatabase = () => {
           title TEXT NOT NULL,
           description TEXT NOT NULL,
           urgency TEXT NOT NULL CHECK(urgency IN ('low', 'medium', 'high', 'critical')),
-          status TEXT NOT NULL CHECK(status IN ('pending', 'assigned', 'in_progress', 'resolved', 'rejected')) DEFAULT 'pending',
+          status TEXT NOT NULL CHECK(status IN ('pending', 'assigned', 'in_progress', 'on_hold', 'resolved', 'rejected')) DEFAULT 'pending',
           service_id INTEGER NOT NULL,
           employee_id INTEGER NOT NULL,
           technician_id INTEGER,

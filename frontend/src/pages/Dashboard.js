@@ -3,16 +3,31 @@ import { useAuth } from '../context/AuthContext';
 import { ticketService, serviceService } from '../services/api';
 import TicketCard from '../components/TicketCard';
 import CreateTicketModal from '../components/CreateTicketModal';
+import Toast from '../components/Toast';
+import TechnicianHeader from '../components/TechnicianHeader';
+import StatusCards from '../components/StatusCards';
+import TicketsTable from '../components/TicketsTable';
+import TechnicianTicketDetailsModal from '../components/TechnicianTicketDetailsModal';
 import '../styles/Dashboard.css';
 
 const Dashboard = () => {
   const { user } = useAuth();
   const [tickets, setTickets] = useState([]);
   const [availableTickets, setAvailableTickets] = useState([]);
+  const [filteredAvailableTickets, setFilteredAvailableTickets] = useState([]);
   const [services, setServices] = useState([]);
   const [stats, setStats] = useState(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [activeFilter, setActiveFilter] = useState('all');
+  const [toast, setToast] = useState({ message: '', type: 'success', isVisible: false });
+  const [statsAnimation, setStatsAnimation] = useState(false);
+  
+  // États pour la nouvelle interface technicien
+  const [selectedTicket, setSelectedTicket] = useState(null);
+  const [showTicketDetails, setShowTicketDetails] = useState(false);
+  const [viewMode, setViewMode] = useState('table'); // 'table' ou 'kanban'
+  const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
     loadDashboardData();
@@ -34,6 +49,7 @@ const Dashboard = () => {
         ]);
         setTickets(userTickets);
         setAvailableTickets(availableTicketsData);
+        setFilteredAvailableTickets(availableTicketsData);
       } else {
         const ticketsData = await ticketService.getTickets();
         setTickets(ticketsData);
@@ -58,15 +74,154 @@ const Dashboard = () => {
 
   const handleTicketTaken = async (ticketId) => {
     try {
+      setStatsAnimation(true);
       await ticketService.takeTicket(ticketId);
       loadDashboardData();
+      showToast('🚀 Ticket pris en charge avec succès !', 'success');
+      setTimeout(() => setStatsAnimation(false), 1000);
     } catch (error) {
       console.error('Erreur lors de la prise en charge:', error);
+      showToast('❌ Erreur lors de la prise en charge du ticket', 'error');
+      setStatsAnimation(false);
+    }
+  };
+
+  const handleTicketCompleted = async (ticketId) => {
+    try {
+      // Confirmer avant de marquer comme terminé
+      if (window.confirm('Êtes-vous sûr de vouloir marquer ce ticket comme terminé ?')) {
+        setStatsAnimation(true);
+        await ticketService.updateTicketStatus(ticketId, 'resolved');
+        loadDashboardData();
+        showToast('✅ Ticket marqué comme terminé !', 'success');
+        setTimeout(() => setStatsAnimation(false), 1000);
+      }
+    } catch (error) {
+      console.error('Erreur lors de la complétion:', error);
+      showToast('❌ Erreur lors de la mise à jour du ticket', 'error');
+      setStatsAnimation(false);
     }
   };
 
   const getTicketsByStatus = (status) => {
     return tickets.filter(ticket => ticket.status === status);
+  };
+
+  const handleFilterChange = (filter) => {
+    setActiveFilter(filter);
+    
+    let filtered = [...availableTickets];
+    
+    switch (filter) {
+      case 'urgent':
+        filtered = availableTickets.filter(ticket => 
+          ticket.urgency === 'high' || ticket.urgency === 'critical'
+        );
+        break;
+      case 'critical':
+        filtered = availableTickets.filter(ticket => ticket.urgency === 'critical');
+        break;
+      case 'informatique':
+        filtered = availableTickets.filter(ticket => 
+          ticket.service_name && ticket.service_name.toLowerCase().includes('informatique')
+        );
+        break;
+      case 'maintenance':
+        filtered = availableTickets.filter(ticket => 
+          ticket.service_name && ticket.service_name.toLowerCase().includes('maintenance')
+        );
+        break;
+      default:
+        filtered = availableTickets;
+    }
+    
+    setFilteredAvailableTickets(filtered);
+  };
+
+  const showToast = (message, type = 'success') => {
+    setToast({ message, type, isVisible: true });
+  };
+
+  const hideToast = () => {
+    setToast(prev => ({ ...prev, isVisible: false }));
+  };
+
+  // Gestionnaires pour la nouvelle interface technicien
+  const handleTicketClick = (ticket) => {
+    setSelectedTicket(ticket);
+    setShowTicketDetails(true);
+  };
+
+  const handleStatusFilter = (status) => {
+    setActiveFilter(status);
+  };
+
+  const handleSearch = (term) => {
+    setSearchTerm(term);
+  };
+
+  const handleViewModeChange = (mode) => {
+    setViewMode(mode);
+  };
+
+  const handleTicketStatusUpdate = async (ticketId, newStatus) => {
+    try {
+      await ticketService.updateTicketStatus(ticketId, newStatus);
+      loadDashboardData();
+      showToast(`Ticket mis à jour: ${newStatus}`, 'success');
+    } catch (error) {
+      console.error('Erreur mise à jour ticket:', error);
+      showToast('Erreur lors de la mise à jour', 'error');
+    }
+  };
+
+  // Gestionnaire d'actions des tickets pour le tableau
+  const handleTicketAction = async (action, ticketId) => {
+    const ticket = [...tickets, ...availableTickets].find(t => t.id === ticketId);
+    
+    switch (action) {
+      case 'take':
+        await handleTicketTaken(ticketId);
+        break;
+      case 'start':
+        // Commencer le travail sur un ticket assigné
+        try {
+          await ticketService.updateTicketStatus(ticketId, 'in_progress');
+          loadDashboardData();
+          showToast('🚀 Travail commencé sur le ticket !', 'success');
+        } catch (error) {
+          console.error('Erreur lors du démarrage:', error);
+          showToast('❌ Erreur lors du démarrage du travail', 'error');
+        }
+        break;
+      case 'updateStatus':
+        // Pour l'instant, on ouvre les détails pour changer le statut
+        setSelectedTicket(ticket);
+        setShowTicketDetails(true);
+        break;
+      case 'addComment':
+        setSelectedTicket(ticket);
+        setShowTicketDetails(true);
+        break;
+      case 'details':
+        setSelectedTicket(ticket);
+        setShowTicketDetails(true);
+        break;
+      default:
+        break;
+    }
+  };
+
+  // Données pour les nouvelles cartes de statut
+  const getTicketStats = () => {
+    const allTickets = [...tickets, ...availableTickets];
+    return {
+      unassigned: allTickets.filter(t => t.status === 'pending').length,
+      assigned: allTickets.filter(t => t.status === 'assigned').length,
+      on_hold: allTickets.filter(t => t.status === 'on_hold').length,
+      in_progress: allTickets.filter(t => t.status === 'in_progress').length,
+      resolved: allTickets.filter(t => t.status === 'resolved').length
+    };
   };
 
   const getGreeting = () => {
@@ -89,8 +244,15 @@ const Dashboard = () => {
   if (loading) {
     return (
       <div className="dashboard-loading">
-        <div className="loading-spinner"></div>
-        <p>Chargement de votre tableau de bord...</p>
+        <div className="technician-loading-container">
+          <div className="loading-animation">
+            <div className="loading-gear">🔧</div>
+            <div className="loading-text">
+              <h3>Chargement de votre interface technicien...</h3>
+              <p>Récupération des demandes d'intervention</p>
+            </div>
+          </div>
+        </div>
       </div>
     );
   }
@@ -181,30 +343,42 @@ const Dashboard = () => {
       {/* Interface technicien */}
       {user.role === 'technician' && (
         <div className="technician-dashboard">
-          <div className="dashboard-sections">
-            <div className="section">
-              <h2>Demandes disponibles ({availableTickets.length})</h2>
-              <div className="tickets-list">
-                {availableTickets.map(ticket => (
-                  <TicketCard 
-                    key={ticket.id} 
-                    ticket={ticket} 
-                    onTake={() => handleTicketTaken(ticket.id)}
-                    showTakeButton={true}
-                  />
-                ))}
-              </div>
-            </div>
+          {/* Nouveau header technicien */}
+          <TechnicianHeader 
+            onSearch={handleSearch}
+            onNotificationClick={() => showToast('Notifications développées bientôt!', 'info')}
+            technicianName={user.firstname}
+          />
 
-            <div className="section">
-              <h2>Mes demandes en cours ({getTicketsByStatus('in_progress').length})</h2>
-              <div className="tickets-list">
-                {getTicketsByStatus('in_progress').map(ticket => (
-                  <TicketCard key={ticket.id} ticket={ticket} />
-                ))}
-              </div>
-            </div>
-          </div>
+          {/* Nouvelles cartes de statut */}
+          <StatusCards 
+            stats={getTicketStats()}
+            onCardClick={handleStatusFilter}
+            activeFilter={activeFilter}
+          />
+
+          {/* Nouveau tableau des tickets */}
+          <TicketsTable 
+            tickets={[...tickets, ...availableTickets]}
+            onTicketAction={handleTicketAction}
+            onTicketClick={handleTicketClick}
+            currentUser={user}
+            filteredStatus={activeFilter}
+            searchTerm={searchTerm}
+          />
+
+          {/* Modal de détails du ticket */}
+          {showTicketDetails && selectedTicket && (
+            <TechnicianTicketDetailsModal
+              ticket={selectedTicket}
+              onClose={() => {
+                setShowTicketDetails(false);
+                setSelectedTicket(null);
+              }}
+              onStatusChange={handleTicketStatusUpdate}
+              onUpdate={loadDashboardData}
+            />
+          )}
         </div>
       )}
 
@@ -232,6 +406,14 @@ const Dashboard = () => {
           onTicketCreated={handleTicketCreated}
         />
       )}
+
+      {/* Toast notifications */}
+      <Toast
+        message={toast.message}
+        type={toast.type}
+        isVisible={toast.isVisible}
+        onClose={hideToast}
+      />
     </div>
   );
 };

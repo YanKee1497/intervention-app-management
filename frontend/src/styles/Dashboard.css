@@ -11,8 +11,47 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  min-height: 400px;
-  gap: var(--spacing-lg);
+  min-height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.technician-loading-container {
+  text-align: center;
+  background: rgba(255, 255, 255, 0.95);
+  padding: 40px;
+  border-radius: 20px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+  backdrop-filter: blur(10px);
+}
+
+.loading-animation {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+.loading-gear {
+  font-size: 48px;
+  animation: rotate 2s linear infinite;
+}
+
+@keyframes rotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.loading-text h3 {
+  color: #2d3436;
+  margin: 0 0 10px 0;
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+
+.loading-text p {
+  color: #636e72;
+  margin: 0;
+  font-size: 0.9rem;
 }
 
 .dashboard-loading p {
@@ -159,10 +198,221 @@
 }
 
 /* Dashboard technicien */
+.technician-dashboard {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  min-height: 100vh;
+  padding: var(--spacing-xl);
+}
+
+.technician-header {
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 20px;
+  padding: var(--spacing-xl);
+  margin-bottom: var(--spacing-xl);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+  backdrop-filter: blur(10px);
+}
+
+.technician-welcome {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing-lg);
+}
+
+.technician-welcome h1 {
+  color: #2d3436;
+  font-size: 2rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+.technician-welcome .tech-badge {
+  background: linear-gradient(135deg, #00b894, #55efc4);
+  color: white;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.technician-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--spacing-lg);
+  margin-bottom: var(--spacing-xl);
+}
+
+.tech-stat-card {
+  background: white;
+  border-radius: 15px;
+  padding: var(--spacing-lg);
+  text-align: center;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.tech-stat-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+}
+
+.stat-updating {
+  animation: statUpdate 0.8s ease-in-out;
+}
+
+@keyframes statUpdate {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); background: linear-gradient(135deg, #00b894, #55efc4); }
+  100% { transform: scale(1); }
+}
+
+.stat-updating .tech-stat-number {
+  animation: numberChange 0.8s ease-in-out;
+}
+
+@keyframes numberChange {
+  0% { transform: rotateY(0deg); }
+  50% { transform: rotateY(90deg); color: white; }
+  100% { transform: rotateY(0deg); }
+}
+
+.tech-stat-icon {
+  width: 60px;
+  height: 60px;
+  background: linear-gradient(135deg, #74b9ff, #0984e3);
+  border-radius: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 15px auto;
+  font-size: 24px;
+}
+
+.tech-stat-number {
+  font-size: 2.5rem;
+  font-weight: bold;
+  color: #2d3436;
+  margin-bottom: 5px;
+}
+
+.tech-stat-label {
+  color: #636e72;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
 .technician-dashboard .dashboard-sections {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: var(--spacing-2xl);
+}
+
+.technician-section {
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 20px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+  overflow: hidden;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.technician-section-header {
+  background: linear-gradient(135deg, #636e72, #2d3436);
+  color: white;
+  padding: var(--spacing-lg);
+  border-bottom: none;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.technician-section-header h2 {
+  margin: 0;
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+
+.ticket-count {
+  background: rgba(255, 255, 255, 0.2);
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.technician-section .tickets-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  padding: var(--spacing-lg);
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.technician-section .tickets-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.technician-section .tickets-list::-webkit-scrollbar-track {
+  background: #f1f3f5;
+  border-radius: 3px;
+}
+
+.technician-section .tickets-list::-webkit-scrollbar-thumb {
+  background: #ddd;
+  border-radius: 3px;
+}
+
+.technician-section .tickets-list::-webkit-scrollbar-thumb:hover {
+  background: #ccc;
+}
+
+.technician-empty-state {
+  text-align: center;
+  padding: var(--spacing-2xl);
+  color: #636e72;
+}
+
+.technician-empty-state .empty-icon {
+  font-size: 3rem;
+  margin-bottom: var(--spacing-md);
+  opacity: 0.5;
+}
+
+.technician-empty-state h3 {
+  color: #2d3436;
+  margin-bottom: var(--spacing-sm);
+}
+
+.technician-filters {
+  display: flex;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-lg);
+  flex-wrap: wrap;
+}
+
+.filter-btn {
+  padding: 8px 16px;
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(116, 185, 255, 0.3);
+  border-radius: 20px;
+  color: #2d3436;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.filter-btn:hover,
+.filter-btn.active {
+  background: linear-gradient(135deg, #74b9ff, #0984e3);
+  color: white;
+  border-color: transparent;
+  transform: translateY(-2px);
 }
 
 .section {
@@ -192,6 +442,90 @@
   border-radius: var(--border-radius-lg);
   box-shadow: var(--shadow-sm);
   border: 1px solid var(--gray-200);
+}
+
+/* Animations pour l'interface technicien */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.tech-stat-card {
+  animation: fadeInUp 0.6s ease-out;
+}
+
+.tech-stat-card:nth-child(2) { animation-delay: 0.1s; }
+.tech-stat-card:nth-child(3) { animation-delay: 0.2s; }
+.tech-stat-card:nth-child(4) { animation-delay: 0.3s; }
+
+.technician-section {
+  animation: fadeInUp 0.8s ease-out;
+}
+
+.technician-section:nth-child(2) { animation-delay: 0.1s; }
+
+/* Responsive design pour l'interface technicien */
+@media (max-width: 1200px) {
+  .technician-dashboard .dashboard-sections {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-xl);
+  }
+
+  .technician-stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .technician-dashboard {
+    padding: var(--spacing-lg);
+  }
+
+  .technician-header {
+    padding: var(--spacing-lg);
+  }
+
+  .technician-welcome {
+    flex-direction: column;
+    gap: var(--spacing-md);
+    text-align: center;
+  }
+
+  .technician-welcome h1 {
+    font-size: 1.5rem;
+  }
+
+  .technician-stats {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-md);
+  }
+
+  .technician-filters {
+    justify-content: center;
+  }
+
+  .tech-stat-number {
+    font-size: 2rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .technician-filters {
+    justify-content: flex-start;
+    overflow-x: auto;
+    padding-bottom: var(--spacing-sm);
+  }
+
+  .filter-btn {
+    flex-shrink: 0;
+    min-width: max-content;
+  }
 }
 
 /* Responsive */

@@ -1,7 +1,7 @@
 import './App.css';
 import React, { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
-import TicketsDashboard from './pages/TicketsDashboard';
+import Dashboard from './components/Dashboard';
 import { useAuth, AuthProvider } from './context/AuthContext';
 // import Header from './components/Header';
 // import HeaderSimple from './components/HeaderSimple';
@@ -177,7 +177,7 @@ function SimpleLogin() {
 
 // Dashboard pour employé
 function EmployeeDashboard() {
-  return <TicketsDashboard />;
+  return <Dashboard />;
 }
 
 // Composant pour protéger les routes

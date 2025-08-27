@@ -2,7 +2,7 @@ import React from 'react';
 import { getStatusColor, getUrgencyColor, formatDate } from '../utils/helpers';
 import '../styles/TicketCard.css';
 
-const TicketCard = ({ ticket, onTake, showTakeButton, showAssignButton }) => {
+const TicketCard = ({ ticket, onTake, showTakeButton, showAssignButton, showCompleteButton, onComplete }) => {
   const getServiceIcon = (icon) => {
     const icons = {
       wrench: '🔧',
@@ -17,6 +17,22 @@ const TicketCard = ({ ticket, onTake, showTakeButton, showAssignButton }) => {
   const handleTakeTicket = () => {
     if (onTake) {
       onTake(ticket.id);
+    }
+  };
+
+  const handleCompleteTicket = () => {
+    if (onComplete) {
+      onComplete(ticket.id);
+    }
+  };
+
+  const getUrgencyIcon = (urgency) => {
+    switch (urgency) {
+      case 'critical': return '🔴';
+      case 'high': return '🟠';
+      case 'medium': return '🟡';
+      case 'low': return '🟢';
+      default: return '⚪';
     }
   };
 
@@ -69,20 +85,37 @@ const TicketCard = ({ ticket, onTake, showTakeButton, showAssignButton }) => {
           <button 
             className="take-button"
             onClick={handleTakeTicket}
+            title="Prendre en charge cette demande"
           >
-            Prendre en charge
+            🚀 Prendre en charge
+          </button>
+        )}
+        
+        {showCompleteButton && (
+          <button 
+            className="complete-button"
+            onClick={handleCompleteTicket}
+            title="Marquer comme terminé"
+          >
+            ✅ Terminer
           </button>
         )}
         
         {showAssignButton && (
           <button className="assign-button">
-            Assigner
+            👥 Assigner
           </button>
         )}
 
-        <button className="details-button">
-          Voir détails
+        <button className="details-button" title="Voir les détails complets">
+          👁️ Détails
         </button>
+
+        {(showTakeButton || showCompleteButton) && (
+          <button className="priority-button" title="Changer la priorité">
+            {getUrgencyIcon(ticket.urgency)} Priorité
+          </button>
+        )}
       </div>
     </div>
   );

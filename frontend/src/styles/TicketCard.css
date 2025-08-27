@@ -151,13 +151,89 @@
 }
 
 .take-button {
-  background-color: var(--success-green);
+  background: linear-gradient(135deg, #00b894, #55efc4);
   color: white;
+  font-weight: 600;
+  transform: scale(1);
+  transition: all 0.3s ease;
 }
 
 .take-button:hover {
-  background-color: #059669;
+  background: linear-gradient(135deg, #00a085, #4ee0b8);
+  transform: scale(1.05);
+  box-shadow: 0 4px 15px rgba(0, 184, 148, 0.4);
+}
+
+.complete-button {
+  background: linear-gradient(135deg, #6c5ce7, #a29bfe);
+  color: white;
+  font-weight: 600;
+}
+
+.complete-button:hover {
+  background: linear-gradient(135deg, #5f3dc4, #9775fa);
   transform: translateY(-1px);
+  box-shadow: 0 4px 15px rgba(108, 92, 231, 0.4);
+}
+
+.priority-button {
+  background: linear-gradient(135deg, #fdcb6e, #fd79a8);
+  color: white;
+  font-weight: 500;
+}
+
+/* Badge de priorité avec indicateur visuel */
+.urgency-badge {
+  position: relative;
+  overflow: hidden;
+}
+
+.urgency-badge::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background: currentColor;
+}
+
+.urgency-badge.critical {
+  background: linear-gradient(135deg, #e74c3c, #c0392b);
+  color: white;
+  animation: pulse 2s infinite;
+  box-shadow: 0 0 10px rgba(231, 76, 60, 0.3);
+}
+
+.urgency-badge.high {
+  background: linear-gradient(135deg, #f39c12, #e67e22);
+  color: white;
+}
+
+.urgency-badge.medium {
+  background: linear-gradient(135deg, #f1c40f, #f39c12);
+  color: #2d3436;
+}
+
+.urgency-badge.low {
+  background: linear-gradient(135deg, #2ecc71, #27ae60);
+  color: white;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+/* Animation pour tickets critiques */
+.ticket-card:has(.urgency-badge.critical) {
+  border: 2px solid #e74c3c;
+  animation: borderPulse 3s infinite;
+}
+
+@keyframes borderPulse {
+  0%, 100% { border-color: #e74c3c; }
+  50% { border-color: #c0392b; }
 }
 
 .assign-button {
