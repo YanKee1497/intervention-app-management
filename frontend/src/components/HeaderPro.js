@@ -1,9 +1,13 @@
 import React, { useState, useRef, useEffect } from 'react';
+import UserProfileModal from './UserProfileModal';
+import SettingsModal from './SettingsModal';
 import './HeaderPro.css';
 
 function HeaderPro({ user, notifications = 0, onLogout, onProfileClick, onSettingsClick, onSearch }) {
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
+  const [showProfileModal, setShowProfileModal] = useState(false);
+  const [showSettingsModal, setShowSettingsModal] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const profileMenuRef = useRef(null);
   const notificationsRef = useRef(null);
@@ -108,9 +112,23 @@ function HeaderPro({ user, notifications = 0, onLogout, onProfileClick, onSettin
 
   const handleMenuItemClick = (action) => {
     setShowProfileMenu(false);
-    if (action === 'profile' && onProfileClick) onProfileClick();
-    if (action === 'settings' && onSettingsClick) onSettingsClick();
+    if (action === 'profile') {
+      setShowProfileModal(true);
+      if (onProfileClick) onProfileClick();
+    }
+    if (action === 'settings') {
+      setShowSettingsModal(true);
+      if (onSettingsClick) onSettingsClick();
+    }
     if (action === 'logout' && onLogout) onLogout();
+  };
+
+  const handleCloseProfileModal = () => {
+    setShowProfileModal(false);
+  };
+
+  const handleCloseSettingsModal = () => {
+    setShowSettingsModal(false);
   };
 
   const handleSearchChange = (e) => {
@@ -289,6 +307,18 @@ function HeaderPro({ user, notifications = 0, onLogout, onProfileClick, onSettin
           </div>
         </div>
       </div>
+
+      {/* Modales */}
+      <UserProfileModal 
+        isOpen={showProfileModal} 
+        onClose={handleCloseProfileModal}
+        user={user}
+      />
+      
+      <SettingsModal 
+        isOpen={showSettingsModal} 
+        onClose={handleCloseSettingsModal}
+      />
     </header>
   );
 }
