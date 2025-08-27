@@ -237,6 +237,76 @@
   transform: translateY(0);
 }
 
+/* FAB (Floating Action Button) for Mobile */
+.fab-btn {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  background: #2563eb;
+  color: #ffffff;
+  border: none;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  font-size: 20px;
+  cursor: pointer;
+  display: none; /* Hidden by default */
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3), 0 8px 20px rgba(0, 0, 0, 0.15);
+  transition: all 0.3s ease;
+  z-index: 999;
+  font-weight: 500;
+  animation: fabSlideIn 0.5s ease-out;
+}
+
+@keyframes fabSlideIn {
+  from {
+    transform: translateY(100px) scale(0.8);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+}
+
+.fab-btn:hover {
+  background: #1d4ed8;
+  transform: scale(1.1);
+  box-shadow: 0 6px 16px rgba(37, 99, 235, 0.4), 0 12px 28px rgba(0, 0, 0, 0.2);
+}
+
+.fab-btn:active {
+  transform: scale(1.05);
+}
+
+.fab-btn:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3), 0 4px 12px rgba(37, 99, 235, 0.3), 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+/* FAB animation on click */
+.fab-btn:active::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.3);
+  transform: translate(-50%, -50%) scale(0);
+  animation: fabRipple 0.4s ease-out;
+}
+
+@keyframes fabRipple {
+  to {
+    transform: translate(-50%, -50%) scale(2);
+    opacity: 0;
+  }
+}
+
 /* Table Container */
 .table-container {
   background: #ffffff;
@@ -480,6 +550,20 @@
   .subject {
     max-width: 150px;
   }
+
+  /* Hide desktop button and show FAB on mobile */
+  .new-request-btn {
+    display: none;
+  }
+
+  .fab-btn {
+    display: flex;
+  }
+
+  /* Adjust filters section layout */
+  .filters-right {
+    display: none; /* Hide the entire right section containing the button */
+  }
 }
 
 @media (max-width: 640px) {
@@ -506,5 +590,19 @@
   .tickets-table tbody td:nth-child(3),
   .tickets-table tbody td:nth-child(5) {
     display: none;
+  }
+
+  /* Adjust FAB position for smaller screens */
+  .fab-btn {
+    bottom: 20px;
+    right: 20px;
+    width: 52px;
+    height: 52px;
+    font-size: 18px;
+  }
+
+  /* Ensure FAB doesn't interfere with content */
+  .main-content {
+    padding-bottom: 80px; /* Add space for FAB */
   }
 }

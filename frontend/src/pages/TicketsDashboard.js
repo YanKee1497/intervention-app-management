@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import HeaderPro from '../components/HeaderPro';
 import NewTicketModal from '../components/NewTicketModal';
+import TicketDetailsModal from '../components/TicketDetailsModal';
 import './TicketsDashboard.css';
 
 function TicketsDashboard() {
@@ -20,6 +21,8 @@ function TicketsDashboard() {
   const [entriesPerPage, setEntriesPerPage] = useState(10);
   const [currentPage, setCurrentPage] = useState(1);
   const [isNewTicketModalOpen, setIsNewTicketModalOpen] = useState(false);
+  const [isTicketDetailsModalOpen, setIsTicketDetailsModalOpen] = useState(false);
+  const [selectedTicket, setSelectedTicket] = useState(null);
 
   // Données de démonstration
   const mockTickets = [
@@ -29,7 +32,8 @@ function TicketsDashboard() {
       category: 'Support',
       status: 'en_attente',
       createdAt: '2025-08-27',
-      priority: 'normal'
+      priority: 'normal',
+      description: 'Le réseau est instable dans le bureau 204. Les connexions se coupent régulièrement et la vitesse est très lente.'
     },
     {
       id: 'TCK-002',
@@ -37,7 +41,8 @@ function TicketsDashboard() {
       category: 'Installation',
       status: 'en_cours',
       createdAt: '2025-08-26',
-      priority: 'urgent'
+      priority: 'urgent',
+      description: 'Besoin d\'installer le logiciel de comptabilité SAP sur 5 postes du service comptabilité.'
     },
     {
       id: 'TCK-003',
@@ -45,7 +50,8 @@ function TicketsDashboard() {
       category: 'Bug',
       status: 'resolu',
       createdAt: '2025-08-25',
-      priority: 'normal'
+      priority: 'normal',
+      description: 'L\'application mobile plante au démarrage sur les appareils Android version 12+'
     },
     {
       id: 'TCK-004',
@@ -53,7 +59,8 @@ function TicketsDashboard() {
       category: 'Support',
       status: 'non_pris_en_charge',
       createdAt: '2025-08-24',
-      priority: 'faible'
+      priority: 'faible',
+      description: 'Demande d\'accès au serveur de fichiers partagés pour le nouvel employé.'
     },
     {
       id: 'TCK-005',
@@ -61,7 +68,8 @@ function TicketsDashboard() {
       category: 'Support',
       status: 'en_attente',
       createdAt: '2025-08-27',
-      priority: 'urgent'
+      priority: 'urgent',
+      description: 'L\'écran principal clignote constamment, impossible de travailler correctement.'
     },
     {
       id: 'TCK-006',
@@ -69,7 +77,8 @@ function TicketsDashboard() {
       category: 'Installation',
       status: 'en_cours',
       createdAt: '2025-08-26',
-      priority: 'normal'
+      priority: 'normal',
+      description: 'Configuration du VPN pour permettre le télétravail sécurisé.'
     }
   ];
 
@@ -126,6 +135,38 @@ function TicketsDashboard() {
 
   const handleLogout = () => {
     console.log('Déconnexion...');
+  };
+
+  // Handlers pour les actions sur les tickets
+  const handleViewTicket = (ticket) => {
+    setSelectedTicket(ticket);
+    setIsTicketDetailsModalOpen(true);
+  };
+
+  const handleRestartTicket = (ticket) => {
+    if (window.confirm(`Êtes-vous sûr de vouloir relancer le ticket ${ticket.id} ?`)) {
+      // Mise à jour du statut du ticket
+      const updatedTickets = tickets.map(t => 
+        t.id === ticket.id 
+          ? { ...t, status: 'en_attente', createdAt: new Date().toISOString().split('T')[0] }
+          : t
+      );
+      setTickets(updatedTickets);
+      alert(`Le ticket ${ticket.id} a été relancé avec succès !`);
+    }
+  };
+
+  const handleDeleteTicket = (ticket) => {
+    if (window.confirm(`Êtes-vous sûr de vouloir supprimer définitivement le ticket ${ticket.id} ?\n\nCette action est irréversible.`)) {
+      const updatedTickets = tickets.filter(t => t.id !== ticket.id);
+      setTickets(updatedTickets);
+      alert(`Le ticket ${ticket.id} a été supprimé avec succès !`);
+    }
+  };
+
+  const handleCloseTicketDetails = () => {
+    setIsTicketDetailsModalOpen(false);
+    setSelectedTicket(null);
   };
 
   const getStatusText = (status) => {
@@ -283,9 +324,27 @@ function TicketsDashboard() {
                     </td>
                     <td className="date">{ticket.createdAt}</td>
                     <td className="actions">
-                      <button className="action-btn view-btn" title="Voir">👁</button>
-                      <button className="action-btn restart-btn" title="Relancer">🔄</button>
-                      <button className="action-btn cancel-btn" title="Annuler">🗑</button>
+                      <button 
+                        className="action-btn view-btn" 
+                        title="Voir les détails"
+                        onClick={() => handleViewTicket(ticket)}
+                      >
+                        👁
+                      </button>
+                      <button 
+                        className="action-btn restart-btn" 
+                        title="Relancer le ticket"
+                        onClick={() => handleRestartTicket(ticket)}
+                      >
+                        🔄
+                      </button>
+                      <button 
+                        className="action-btn cancel-btn" 
+                        title="Supprimer le ticket"
+                        onClick={() => handleDeleteTicket(ticket)}
+                      >
+                        🗑
+                      </button>
                     </td>
                   </tr>
                 ))}
@@ -336,11 +395,27 @@ function TicketsDashboard() {
         </div>
       </main>
 
+      {/* FAB (Floating Action Button) for Mobile */}
+      <button 
+        className="fab-btn"
+        onClick={handleNewTicketClick}
+        title="Nouvelle demande"
+      >
+        +
+      </button>
+
       {/* Modale Nouvelle demande */}
       <NewTicketModal
         isOpen={isNewTicketModalOpen}
         onClose={handleCloseModal}
         user={user}
+      />
+
+      {/* Modale Détails du ticket */}
+      <TicketDetailsModal
+        isOpen={isTicketDetailsModalOpen}
+        onClose={handleCloseTicketDetails}
+        ticket={selectedTicket}
       />
     </div>
   );
