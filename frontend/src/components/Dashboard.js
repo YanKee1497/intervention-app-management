@@ -4,7 +4,7 @@ import { useAuth } from '../context/AuthContext';
 // Import des différentes interfaces
 import TicketsDashboard from '../pages/TicketsDashboard';
 
-// Import des composants technicien que nous avons créés
+// Import des composants technicien
 import TechnicianHeader from './technician/TechnicianHeader';
 import StatusCards from './technician/StatusCards';
 import TicketsTable from './technician/TicketsTable';
@@ -15,6 +15,7 @@ import './technician/TechnicianHeader.css';
 import './technician/StatusCards.css';
 import './technician/TicketsTable.css';
 import './technician/TechnicianTicketDetailsModal.css';
+import './technician/TechnicianDashboard.css';
 
 // Interface Technicien
 function TechnicianDashboard() {
@@ -30,7 +31,7 @@ function TechnicianDashboard() {
       try {
         setIsLoading(true);
         
-        // Simulation d'appel API - en attendant, utilisons des données locales
+        // Simulation d'appel API - données de tickets pour technicien
         const mockTickets = [
           {
             id: 1,
@@ -233,6 +234,15 @@ function TechnicianDashboard() {
       <main className="main-content">
         <div className="content-container">
           
+          <div className="page-header">
+            <div className="breadcrumb">
+              <span>Dashboard</span>
+              <span> &gt; </span>
+              <span>Tickets</span>
+            </div>
+            <h1 className="page-title">Mes Tickets</h1>
+          </div>
+          
           <StatusCards 
             stats={stats}
             selectedStatus={selectedStatus}
@@ -263,54 +273,60 @@ function TechnicianDashboard() {
   );
 }
 
-// Interface Admin (peut être développée plus tard)
+// Interface Employé
+function EmployeeDashboard() {
+  return <TicketsDashboard />;
+}
+
+// Interface Administrateur
 function AdminDashboard() {
   return (
-    <div>
-      <h1>Interface Administrateur</h1>
+    <div className="admin-dashboard">
+      <h1>Dashboard Administrateur</h1>
       <p>Interface d'administration en cours de développement...</p>
     </div>
   );
 }
 
-// Interface Manager (peut être développée plus tard) 
+// Interface Gestionnaire
 function ManagerDashboard() {
   return (
-    <div>
-      <h1>Interface Manager</h1>
+    <div className="manager-dashboard">
+      <h1>Dashboard Gestionnaire</h1>
       <p>Interface de gestion en cours de développement...</p>
     </div>
   );
 }
 
-// Composant principal de routage par rôle
+// Composant principal Dashboard
 function Dashboard() {
   const { user } = useAuth();
 
-  console.log('🔍 Dashboard - utilisateur connecté:', user);
-
   if (!user) {
-    return <div>Chargement...</div>;
+    return (
+      <div className="dashboard-loading">
+        <p>Chargement du tableau de bord...</p>
+      </div>
+    );
   }
 
-  // Routage selon le rôle de l'utilisateur
+  // Sélection de l'interface selon le rôle de l'utilisateur
   switch (user.role) {
     case 'technician':
-      console.log('📋 Affichage interface technicien');
       return <TechnicianDashboard />;
-      
-    case 'admin':
-      console.log('👑 Affichage interface admin');
-      return <AdminDashboard />;
-      
-    case 'manager':
-      console.log('📊 Affichage interface manager');
-      return <ManagerDashboard />;
-      
     case 'employee':
+      return <EmployeeDashboard />;
+    case 'admin':
+      return <AdminDashboard />;
+    case 'manager':
+      return <ManagerDashboard />;
     default:
-      console.log('👤 Affichage interface employé');
-      return <TicketsDashboard />;
+      return (
+        <div className="dashboard-error">
+          <h1>Erreur</h1>
+          <p>Rôle utilisateur non reconnu: {user.role}</p>
+        </div>
+      );
   }
 }
 

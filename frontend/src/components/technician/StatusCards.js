@@ -5,64 +5,71 @@ const StatusCards = ({ stats, selectedStatus, onStatusChange }) => {
   const statusCards = [
     {
       key: 'pending',
-      label: 'Non pris en charge',
-      icon: '🔴',
+      label: 'Tickets non pris en charge',
       count: stats.pending || 0,
-      color: '#ff6b6b'
+      color: '#FEF2F2',
+      iconColor: '#DC2626',
+      icon: '🔴',
+      description: 'Aucun technicien n\'a encore pris ou reçu le ticket. Il est en attente d\'assignation.'
     },
     {
       key: 'assigned',
-      label: 'Assigné',
-      icon: '🟣',
+      label: 'Tickets assignés',
       count: stats.assigned || 0,
-      color: '#9c88ff'
+      color: '#F3F0FF',
+      iconColor: '#7C3AED',
+      icon: '🟣',
+      description: 'Tickets attribués à un technicien par le manager, mais pas encore commencés.'
     },
     {
       key: 'on_hold',
-      label: 'En attente',
-      icon: '🟠',
+      label: 'Tickets en attente',
       count: stats.on_hold || 0,
-      color: '#feca57'
+      color: '#FEF3C7',
+      iconColor: '#F59E0B',
+      icon: '�',
+      description: 'Tickets bloqués en attente d\'une action extérieure (pièces, validation, infos).'
     },
     {
       key: 'in_progress',
-      label: 'En cours',
-      icon: '🟡',
+      label: 'Tickets en cours',
       count: stats.in_progress || 0,
-      color: '#48dbfb'
+      color: '#FEF3C7',
+      iconColor: '#EAB308',
+      icon: '🟡',
+      description: 'Le technicien travaille activement dessus.'
     },
     {
       key: 'resolved',
-      label: 'Résolu',
-      icon: '🟢',
+      label: 'Tickets résolus',
       count: stats.resolved || 0,
-      color: '#1dd1a1'
+      color: '#D1FAE5',
+      iconColor: '#10B981',
+      icon: '🟢',
+      description: 'Le problème est réglé et le ticket clôturé.'
     }
   ];
 
   return (
-    <div className="status-cards-container">
-      <div className="status-cards-header">
-        <h2>Vue d'ensemble des tickets</h2>
-        <p>Filtrez par statut pour voir les détails</p>
-      </div>
-      
+    <div className="status-cards-container">      
       <div className="status-cards-grid">
         {statusCards.map(card => (
           <div
             key={card.key}
-            className={`status-card ${selectedStatus === card.key ? 'active' : ''} ${selectedStatus === 'all' ? 'show-all' : ''}`}
+            className={`status-card ${selectedStatus === card.key ? 'active' : ''}`}
             onClick={() => onStatusChange(card.key)}
-            style={{
-              '--card-color': card.color,
-              '--card-color-light': card.color + '20'
-            }}
+            style={{ backgroundColor: card.color }}
           >
             <div className="status-card-content">
-              <div className="status-card-icon">
-                {card.icon}
+              <div className="status-card-left">
+                <div 
+                  className="status-card-icon"
+                  style={{ color: card.iconColor }}
+                >
+                  {card.icon}
+                </div>
               </div>
-              <div className="status-card-info">
+              <div className="status-card-right">
                 <div className="status-card-count">
                   {card.count}
                 </div>
@@ -71,30 +78,8 @@ const StatusCards = ({ stats, selectedStatus, onStatusChange }) => {
                 </div>
               </div>
             </div>
-            <div className="status-card-hover-effect"></div>
           </div>
         ))}
-        
-        {/* Carte "Tous" */}
-        <div
-          className={`status-card all-card ${selectedStatus === 'all' ? 'active' : ''}`}
-          onClick={() => onStatusChange('all')}
-        >
-          <div className="status-card-content">
-            <div className="status-card-icon">
-              📋
-            </div>
-            <div className="status-card-info">
-              <div className="status-card-count">
-                {Object.values(stats).reduce((sum, count) => sum + count, 0)}
-              </div>
-              <div className="status-card-label">
-                Tous
-              </div>
-            </div>
-          </div>
-          <div className="status-card-hover-effect"></div>
-        </div>
       </div>
     </div>
   );

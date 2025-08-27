@@ -1,0 +1,48 @@
+/* Dashboard Technicien - Style général */
+.technician-dashboard {
+  min-height: 100vh;
+  background: #f9fafb;
+}
+
+.main-content {
+  padding-top: 64px; /* Pour compenser le header fixe */
+}
+
+.content-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+/* Page Header - Style identique à l'interface employé */
+.page-header {
+  margin-bottom: 32px;
+}
+
+.breadcrumb {
+  font-size: 14px;
+  color: #6b7280;
+  margin-bottom: 8px;
+}
+
+.breadcrumb span:not(:last-child) {
+  margin-right: 4px;
+}
+
+.page-title {
+  font-size: 32px;
+  font-weight: 700;
+  color: #1f2937;
+  margin: 0;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .content-container {
+    padding: 16px;
+  }
+  
+  .page-title {
+    font-size: 24px;
+  }
+}
