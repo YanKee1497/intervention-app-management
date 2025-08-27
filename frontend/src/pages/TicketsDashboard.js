@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import HeaderPro from '../components/HeaderPro';
+import NewTicketModal from '../components/NewTicketModal';
 import './TicketsDashboard.css';
 
 function TicketsDashboard() {
@@ -8,7 +9,8 @@ function TicketsDashboard() {
     email: 'admin@entreprise.com',
     nom: 'Administrateur',
     prenom: 'Admin',
-    role: 'admin'
+    role: 'admin',
+    service: 'Direction générale'
   });
 
   const [tickets, setTickets] = useState([]);
@@ -17,6 +19,7 @@ function TicketsDashboard() {
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [entriesPerPage, setEntriesPerPage] = useState(10);
   const [currentPage, setCurrentPage] = useState(1);
+  const [isNewTicketModalOpen, setIsNewTicketModalOpen] = useState(false);
 
   // Données de démonstration
   const mockTickets = [
@@ -111,6 +114,14 @@ function TicketsDashboard() {
 
   const handleStatusCardClick = (status) => {
     setSelectedStatus(selectedStatus === status ? 'all' : status);
+  };
+
+  const handleNewTicketClick = () => {
+    setIsNewTicketModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsNewTicketModalOpen(false);
   };
 
   const handleLogout = () => {
@@ -237,7 +248,10 @@ function TicketsDashboard() {
             </div>
 
             <div className="filters-right">
-              <button className="new-request-btn">
+              <button 
+                className="new-request-btn"
+                onClick={handleNewTicketClick}
+              >
                 + Nouvelle demande
               </button>
             </div>
@@ -321,6 +335,13 @@ function TicketsDashboard() {
           )}
         </div>
       </main>
+
+      {/* Modale Nouvelle demande */}
+      <NewTicketModal
+        isOpen={isNewTicketModalOpen}
+        onClose={handleCloseModal}
+        user={user}
+      />
     </div>
   );
 }
