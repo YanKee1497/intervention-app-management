@@ -229,7 +229,13 @@ function TechnicianDashboard() {
 
   return (
     <div className="technician-dashboard">
-      <TechnicianHeader user={user} />
+      <TechnicianHeader 
+        user={user} 
+        notifications={3}
+        onLogout={() => console.log('Déconnexion')}
+        onProfileClick={() => console.log('Profil')}
+        onSettingsClick={() => console.log('Paramètres')}
+      />
       
       <main className="main-content">
         <div className="content-container">
