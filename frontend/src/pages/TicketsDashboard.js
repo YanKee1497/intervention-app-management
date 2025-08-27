@@ -16,7 +16,6 @@ function TicketsDashboard() {
   const [selectedStatus, setSelectedStatus] = useState('all');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [entriesPerPage, setEntriesPerPage] = useState(10);
-  const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
 
   // Données de démonstration
@@ -100,17 +99,9 @@ function TicketsDashboard() {
       filtered = filtered.filter(ticket => ticket.category === selectedCategory);
     }
 
-    // Recherche par ID ou sujet
-    if (searchTerm) {
-      filtered = filtered.filter(ticket => 
-        ticket.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        ticket.subject.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-    }
-
     setFilteredTickets(filtered);
     setCurrentPage(1);
-  }, [selectedStatus, selectedCategory, searchTerm, tickets]);
+  }, [selectedStatus, selectedCategory, tickets]);
 
   // Pagination
   const totalPages = Math.ceil(filteredTickets.length / entriesPerPage);
@@ -120,10 +111,6 @@ function TicketsDashboard() {
 
   const handleStatusCardClick = (status) => {
     setSelectedStatus(selectedStatus === status ? 'all' : status);
-  };
-
-  const handleSearch = (term) => {
-    setSearchTerm(term);
   };
 
   const handleLogout = () => {
@@ -162,7 +149,6 @@ function TicketsDashboard() {
         user={user}
         notifications={5}
         onLogout={handleLogout}
-        onSearch={handleSearch}
       />
 
       {/* Main Content */}
@@ -251,15 +237,9 @@ function TicketsDashboard() {
             </div>
 
             <div className="filters-right">
-              <div className="search-wrapper">
-                <input 
-                  type="text"
-                  className="search-table"
-                  placeholder="Rechercher dans le tableau..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                />
-              </div>
+              <button className="new-request-btn">
+                + Nouvelle demande
+              </button>
             </div>
           </div>
 

@@ -211,6 +211,32 @@
   color: #9ca3af;
 }
 
+/* New Request Button */
+.new-request-btn {
+  background: #2563eb;
+  color: #ffffff;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.new-request-btn:hover {
+  background: #1d4ed8;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+}
+
+.new-request-btn:active {
+  transform: translateY(0);
+}
+
 /* Table Container */
 .table-container {
   background: #ffffff;
