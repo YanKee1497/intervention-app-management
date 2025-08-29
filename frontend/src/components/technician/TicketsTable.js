@@ -50,6 +50,115 @@ const TicketsTable = ({ tickets, selectedStatus, onTicketSelect, onTicketAction,
   };
 
   // Obtenir le badge de priorité
+  const getUrgencyBadge = (urgency) => {
+    const urgencyConfig = {
+      low: { label: 'Basse', class: 'urgency-low', icon: '🟢' },
+      medium: { label: 'Moyenne', class: 'urgency-medium', icon: '🟡' },
+      high: { label: 'Haute', class: 'urgency-high', icon: '🔴' },
+      critical: { label: 'Critique', class: 'urgency-critical', icon: '🆘' }
+    };
+
+    const config = urgencyConfig[urgency] || { label: urgency, class: 'urgency-unknown', icon: '❓' };
+    
+    return (
+      <span className={`urgency-badge ${config.class}`}>
+        <span className="urgency-icon">{config.icon}</span>
+        {config.label}
+      </span>
+    );
+  };
+
+  // Organiser les tickets par statut pour la vue Kanban
+  const getTicketsByStatus = () => {
+    const statusColumns = {
+      pending: { label: 'Non pris en charge', tickets: [], color: '#FEF2F2' },
+      assigned: { label: 'Assignés', tickets: [], color: '#F3F0FF' },
+      on_hold: { label: 'En attente', tickets: [], color: '#FEF3C7' },
+      in_progress: { label: 'En cours', tickets: [], color: '#DBEAFE' },
+      resolved: { label: 'Résolus', tickets: [], color: '#D1FAE5' }
+    };
+
+    tickets.forEach(ticket => {
+      if (statusColumns[ticket.status]) {
+        statusColumns[ticket.status].tickets.push(ticket);
+      }
+    });
+
+    return statusColumns;
+  };
+
+  // Rendu d'une carte de ticket pour la vue Kanban
+  const renderKanbanCard = (ticket) => (
+    <div key={ticket.id} className="kanban-card" onClick={() => onTicketSelect(ticket)}>
+      <div className="kanban-card-header">
+        <span className="ticket-number">#{ticket.ticket_number}</span>
+        {getUrgencyBadge(ticket.urgency)}
+      </div>
+      
+      <div className="kanban-card-title">
+        {ticket.title}
+      </div>
+      
+      <div className="kanban-card-description">
+        {ticket.description.length > 100 
+          ? `${ticket.description.substring(0, 100)}...` 
+          : ticket.description
+        }
+      </div>
+      
+      <div className="kanban-card-footer">
+        <div className="card-meta">
+          <span className="service-tag">{ticket.service?.name}</span>
+          <span className="created-date">
+            {new Date(ticket.created_at).toLocaleDateString('fr-FR')}
+          </span>
+        </div>
+        
+        <div className="card-actions">
+          {canTakeTicket(ticket) && (
+            <button
+              className="kanban-action-btn take"
+              onClick={(e) => {
+                e.stopPropagation();
+                onTicketAction(ticket.id, 'take');
+              }}
+              title="Prendre en charge"
+            >
+              🤝
+            </button>
+          )}
+          
+          {canStartWork(ticket) && (
+            <button
+              className="kanban-action-btn start"
+              onClick={(e) => {
+                e.stopPropagation();
+                onTicketAction(ticket.id, 'start');
+              }}
+              title="Démarrer"
+            >
+              ▶️
+            </button>
+          )}
+          
+          {ticket.status === 'in_progress' && (
+            <button
+              className="kanban-action-btn resolve"
+              onClick={(e) => {
+                e.stopPropagation();
+                onTicketAction(ticket.id, 'resolve');
+              }}
+              title="Résoudre"
+            >
+              ✅
+            </button>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+
+  // Obtenir le badge de priorité
   const getPriorityBadge = (urgency) => {
     const priorityConfig = {
       low: { label: 'Basse', class: 'priority-low' },
@@ -247,7 +356,38 @@ const TicketsTable = ({ tickets, selectedStatus, onTicketSelect, onTicketAction,
         </div>
       ) : (
         <div className="kanban-view">
-          <p>Vue Kanban en cours de développement...</p>
+          <div className="kanban-board">
+            {Object.entries(getTicketsByStatus()).map(([status, column]) => (
+              <div key={status} className="kanban-column">
+                <div className="kanban-column-header" style={{ backgroundColor: column.color }}>
+                  <div className="column-title">
+                    <span className="status-icon">{getStatusBadge(status).props.children[0]}</span>
+                    {column.label}
+                  </div>
+                  <span className="column-count">{column.tickets.length}</span>
+                </div>
+                
+                <div className="kanban-column-content">
+                  {column.tickets.length === 0 ? (
+                    <div className="kanban-empty-state">
+                      <div className="empty-icon">📋</div>
+                      <p>Aucun ticket</p>
+                    </div>
+                  ) : (
+                    column.tickets.map(ticket => renderKanbanCard(ticket))
+                  )}
+                </div>
+                
+                {status === 'pending' && (
+                  <div className="kanban-column-footer">
+                    <button className="add-ticket-btn">
+                      ➕ Nouveau ticket
+                    </button>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
         </div>
       )}
     </div>
