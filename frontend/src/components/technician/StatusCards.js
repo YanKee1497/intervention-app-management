@@ -27,7 +27,7 @@ const StatusCards = ({ stats, selectedStatus, onStatusChange }) => {
       count: stats.on_hold || 0,
       color: '#FEF3C7',
       iconColor: '#F59E0B',
-      icon: '�',
+      icon: '🟠',
       description: 'Tickets bloqués en attente d\'une action extérieure (pièces, validation, infos).'
     },
     {
@@ -50,15 +50,27 @@ const StatusCards = ({ stats, selectedStatus, onStatusChange }) => {
     }
   ];
 
+  // Gestion du clic pour activer/désactiver le filtre
+  const handleCardClick = (cardKey) => {
+    if (selectedStatus === cardKey) {
+      // Si on clique sur le statut déjà sélectionné, on désactive le filtre
+      onStatusChange('all');
+    } else {
+      // Sinon, on active le filtre pour ce statut
+      onStatusChange(cardKey);
+    }
+  };
+
   return (
-    <div className="status-cards-container">      
+    <div className="status-cards-container">
       <div className="status-cards-grid">
         {statusCards.map(card => (
           <div
             key={card.key}
             className={`status-card ${selectedStatus === card.key ? 'active' : ''}`}
-            onClick={() => onStatusChange(card.key)}
+            onClick={() => handleCardClick(card.key)}
             style={{ backgroundColor: card.color }}
+            title={`${card.description} - Cliquez pour ${selectedStatus === card.key ? 'désactiver' : 'activer'} le filtre`}
           >
             <div className="status-card-content">
               <div className="status-card-left">
