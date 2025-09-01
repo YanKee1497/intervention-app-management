@@ -15,11 +15,12 @@
 .header-container {
   max-width: 1200px;
   margin: 0 auto;
-  display: flex;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
   align-items: center;
   height: 100%;
   padding: 0 20px;
+  gap: 20px;
 }
 
 /* Section gauche - Logo */
@@ -54,6 +55,58 @@
   background-clip: text;
   margin: 0;
   letter-spacing: -0.5px;
+}
+
+/* Section centrale - Recherche */
+.header-center {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  max-width: 400px;
+}
+
+.search-container {
+  width: 100%;
+}
+
+.search-input-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.search-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 16px;
+  color: #666;
+  pointer-events: none;
+}
+
+.search-input {
+  width: 100%;
+  padding: 10px 16px 10px 40px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(10px);
+  font-size: 14px;
+  color: #333;
+  transition: all 0.3s ease;
+  box-sizing: border-box;
+}
+
+.search-input::placeholder {
+  color: #999;
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: #667eea;
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 4px 20px rgba(102, 126, 234, 0.2);
+  transform: translateY(-1px);
 }
 
 /* Section droite */
@@ -107,6 +160,131 @@
   font-weight: 600;
   border: 2px solid white;
   box-shadow: 0 2px 8px rgba(255, 107, 107, 0.3);
+}
+
+/* Menu des notifications */
+.notification-dropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+  padding: 0;
+  min-width: 350px;
+  max-height: 400px;
+  overflow: hidden;
+  z-index: 1001;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  animation: dropdownSlideIn 0.2s ease-out;
+}
+
+.notification-header {
+  padding: 16px 20px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: white;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.notification-header h4 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.notification-count {
+  background: rgba(255, 255, 255, 0.2);
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.notification-list {
+  max-height: 250px;
+  overflow-y: auto;
+}
+
+.notification-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 16px 20px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  transition: background-color 0.2s ease;
+}
+
+.notification-item:hover {
+  background-color: rgba(102, 126, 234, 0.05);
+}
+
+.notification-item:last-child {
+  border-bottom: none;
+}
+
+.notification-item .notification-icon {
+  font-size: 16px;
+  margin-top: 2px;
+}
+
+.notification-content {
+  flex: 1;
+}
+
+.notification-content p {
+  margin: 0 0 4px 0;
+  font-size: 14px;
+  color: #333;
+  line-height: 1.4;
+}
+
+.notification-time {
+  font-size: 12px;
+  color: #666;
+}
+
+.no-notifications {
+  text-align: center;
+  padding: 40px 20px;
+  color: #666;
+}
+
+.no-notif-icon {
+  font-size: 32px;
+  margin-bottom: 8px;
+  display: block;
+}
+
+.no-notifications p {
+  margin: 0;
+  font-size: 14px;
+}
+
+.notification-footer {
+  padding: 12px 20px;
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+  background: rgba(0, 0, 0, 0.02);
+}
+
+.view-all-notifications {
+  width: 100%;
+  padding: 8px 16px;
+  background: transparent;
+  border: 1px solid #667eea;
+  color: #667eea;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.view-all-notifications:hover {
+  background: #667eea;
+  color: white;
 }
 
 /* Profil utilisateur */
@@ -274,6 +452,12 @@
 @media (max-width: 768px) {
   .header-container {
     padding: 0 15px;
+    grid-template-columns: auto auto;
+    gap: 15px;
+  }
+  
+  .header-center {
+    display: none;
   }
   
   .app-name {

@@ -1,15 +1,21 @@
 import React, { useState, useRef, useEffect } from 'react';
 import './TechnicianHeader.css';
 
-const TechnicianHeader = ({ user, notifications = 0, onLogout, onProfileClick, onSettingsClick }) => {
+const TechnicianHeader = ({ user, notifications = 0, onLogout, onProfileClick, onSettingsClick, onNotificationClick, onViewAllNotifications, onSearch }) => {
   const [showProfileMenu, setShowProfileMenu] = useState(false);
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
   const profileMenuRef = useRef(null);
+  const notificationRef = useRef(null);
 
-  // Fermer le menu si on clique ailleurs
+  // Fermer les menus si on clique ailleurs
   useEffect(() => {
     function handleClickOutside(event) {
       if (profileMenuRef.current && !profileMenuRef.current.contains(event.target)) {
         setShowProfileMenu(false);
+      }
+      if (notificationRef.current && !notificationRef.current.contains(event.target)) {
+        setShowNotifications(false);
       }
     }
 
@@ -23,6 +29,17 @@ const TechnicianHeader = ({ user, notifications = 0, onLogout, onProfileClick, o
   const getInitials = (name) => {
     if (!name) return 'T';
     return name.split(' ').map(word => word[0]).join('').toUpperCase().slice(0, 2);
+  };
+
+  const handleNotificationToggle = () => {
+    setShowNotifications(!showNotifications);
+    if (onNotificationClick) onNotificationClick();
+  };
+
+  const handleSearchChange = (e) => {
+    const query = e.target.value;
+    setSearchQuery(query);
+    if (onSearch) onSearch(query);
   };
 
   const handleProfileToggle = () => {
@@ -53,16 +70,89 @@ const TechnicianHeader = ({ user, notifications = 0, onLogout, onProfileClick, o
           </div>
         </div>
 
+        {/* Section centrale - Recherche */}
+        <div className="header-center">
+          <div className="search-container">
+            <div className="search-input-wrapper">
+              <span className="search-icon">🔍</span>
+              <input
+                type="text"
+                className="search-input"
+                placeholder="Rechercher un ticket..."
+                value={searchQuery}
+                onChange={handleSearchChange}
+              />
+            </div>
+          </div>
+        </div>
+
         {/* Section droite - Notifications et profil */}
         <div className="header-right">
           {/* Notifications */}
-          <div className="notifications-container">
-            <button className="notification-btn" title="Notifications">
+          <div className="notifications-container" ref={notificationRef}>
+            <button 
+              className="notification-btn" 
+              onClick={handleNotificationToggle}
+              title="Notifications"
+            >
               <span className="notification-icon">🔔</span>
               {notifications > 0 && (
                 <span className="notification-badge">{notifications}</span>
               )}
             </button>
+
+            {/* Menu des notifications */}
+            {showNotifications && (
+              <div className="notification-dropdown">
+                <div className="notification-header">
+                  <h4>Notifications</h4>
+                  <span className="notification-count">{notifications} nouvelles</span>
+                </div>
+                <div className="notification-list">
+                  {notifications > 0 ? (
+                    <>
+                      <div className="notification-item">
+                        <span className="notification-icon">🆕</span>
+                        <div className="notification-content">
+                          <p>Nouveau ticket urgent assigné</p>
+                          <span className="notification-time">Il y a 2 min</span>
+                        </div>
+                      </div>
+                      <div className="notification-item">
+                        <span className="notification-icon">⏰</span>
+                        <div className="notification-content">
+                          <p>Rappel: Ticket #TCK-003 en attente</p>
+                          <span className="notification-time">Il y a 15 min</span>
+                        </div>
+                      </div>
+                      <div className="notification-item">
+                        <span className="notification-icon">✅</span>
+                        <div className="notification-content">
+                          <p>Ticket #TCK-001 marqué comme résolu</p>
+                          <span className="notification-time">Il y a 1h</span>
+                        </div>
+                      </div>
+                    </>
+                  ) : (
+                    <div className="no-notifications">
+                      <span className="no-notif-icon">📭</span>
+                      <p>Aucune nouvelle notification</p>
+                    </div>
+                  )}
+                </div>
+                <div className="notification-footer">
+                  <button 
+                    className="view-all-notifications"
+                    onClick={() => {
+                      setShowNotifications(false);
+                      if (onViewAllNotifications) onViewAllNotifications();
+                    }}
+                  >
+                    Voir toutes les notifications
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Profil utilisateur */}

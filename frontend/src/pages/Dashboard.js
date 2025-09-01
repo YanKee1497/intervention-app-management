@@ -8,6 +8,10 @@ import TechnicianHeader from '../components/TechnicianHeader';
 import StatusCards from '../components/StatusCards';
 import TicketsTable from '../components/TicketsTable';
 import TechnicianTicketDetailsModal from '../components/TechnicianTicketDetailsModal';
+import NewTicketModal from '../components/technician/NewTicketModal';
+import ProfileModal from '../components/technician/ProfileModal';
+import SettingsModal from '../components/technician/SettingsModal';
+import NotificationsModal from '../components/modals/NotificationsModal';
 import '../styles/Dashboard.css';
 
 const Dashboard = () => {
@@ -28,6 +32,13 @@ const Dashboard = () => {
   const [showTicketDetails, setShowTicketDetails] = useState(false);
   const [viewMode, setViewMode] = useState('table'); // 'table' ou 'kanban'
   const [searchTerm, setSearchTerm] = useState('');
+  
+  // États pour les modaux
+  const [showNewTicketModal, setShowNewTicketModal] = useState(false);
+  const [showProfileModal, setShowProfileModal] = useState(false);
+  const [showSettingsModal, setShowSettingsModal] = useState(false);
+  const [showNotificationsModal, setShowNotificationsModal] = useState(false);
+  const [alertMessage, setAlertMessage] = useState({ text: '', type: '', visible: false });
 
   useEffect(() => {
     loadDashboardData();
@@ -146,6 +157,99 @@ const Dashboard = () => {
     setToast(prev => ({ ...prev, isVisible: false }));
   };
 
+  // Fonction pour afficher les messages d'alerte
+  const showAlertMessage = (text, type = 'success') => {
+    setAlertMessage({ text, type, visible: true });
+    setTimeout(() => {
+      setAlertMessage(prev => ({ ...prev, visible: false }));
+    }, 3000);
+  };
+
+  // Gestionnaires pour les modaux
+  const handleProfileClick = () => {
+    setShowProfileModal(true);
+  };
+
+  const handleSettingsClick = () => {
+    setShowSettingsModal(true);
+  };
+
+  const handleViewAllNotifications = () => {
+    setShowNotificationsModal(true);
+  };
+
+  const handleTicketClickFromNotification = (ticketNumber) => {
+    // Rechercher le ticket par numéro
+    const ticket = [...tickets, ...availableTickets].find(t => 
+      t.ticket_number === ticketNumber || t.id.toString() === ticketNumber
+    );
+    
+    if (ticket) {
+      setSelectedTicket(ticket);
+      setShowTicketDetails(true);
+      showAlertMessage(`Ouverture du ticket ${ticketNumber}`, 'info');
+    } else {
+      showAlertMessage(`Ticket ${ticketNumber} non trouvé`, 'warning');
+    }
+  };
+
+  const handleTransferTicket = async (transferData) => {
+    try {
+      const { ticketId, fromTechnician, toTechnician, reason, priority } = transferData;
+      
+      // Simuler l'API de transfert
+      console.log('Transfert de ticket:', transferData);
+      
+      // Mettre à jour les tickets localement
+      const updatedTickets = tickets.map(ticket => {
+        if (ticket.id === ticketId) {
+          return {
+            ...ticket,
+            technician_id: toTechnician.id,
+            technician_firstname: toTechnician.firstname,
+            technician_lastname: toTechnician.lastname,
+            technician_email: toTechnician.email,
+            status: 'assigned',
+            updated_at: new Date().toISOString(),
+            transfer_history: [
+              ...(ticket.transfer_history || []),
+              {
+                from: fromTechnician,
+                to: toTechnician,
+                reason,
+                priority,
+                timestamp: new Date().toISOString()
+              }
+            ]
+          };
+        }
+        return ticket;
+      });
+      
+      setTickets(updatedTickets);
+      setShowTicketDetails(false);
+      setSelectedTicket(null);
+      
+      showAlertMessage(
+        `Ticket transféré avec succès vers ${toTechnician.firstname} ${toTechnician.lastname}`, 
+        'success'
+      );
+      
+    } catch (error) {
+      console.error('Erreur lors du transfert:', error);
+      showAlertMessage('Erreur lors du transfert du ticket', 'error');
+      throw error;
+    }
+  };
+
+  const handleLogout = () => {
+    if (window.confirm('Êtes-vous sûr de vouloir vous déconnecter ?')) {
+      // Ici on gérerait la déconnexion
+      showAlertMessage('Déconnexion en cours...', 'info');
+      // Rediriger vers la page de connexion
+    }
+  };
+
   // Gestionnaires pour la nouvelle interface technicien
   const handleTicketClick = (ticket) => {
     setSelectedTicket(ticket);
@@ -182,6 +286,7 @@ const Dashboard = () => {
     switch (action) {
       case 'take':
         await handleTicketTaken(ticketId);
+        showAlertMessage(`Ticket #${ticketId} pris en charge avec succès !`, 'success');
         break;
       case 'start':
         // Commencer le travail sur un ticket assigné
@@ -189,23 +294,34 @@ const Dashboard = () => {
           await ticketService.updateTicketStatus(ticketId, 'in_progress');
           loadDashboardData();
           showToast('🚀 Travail commencé sur le ticket !', 'success');
+          showAlertMessage(`Travail commencé sur le ticket #${ticketId}`, 'info');
         } catch (error) {
           console.error('Erreur lors du démarrage:', error);
           showToast('❌ Erreur lors du démarrage du travail', 'error');
+          showAlertMessage('Erreur lors du démarrage du travail', 'error');
         }
+        break;
+      case 'transfer':
+        // Ouvrir le modal de transfert
+        setSelectedTicket(ticket);
+        setShowTicketDetails(true);
+        showAlertMessage(`Ouverture du transfert pour le ticket #${ticketId}`, 'info');
         break;
       case 'updateStatus':
         // Pour l'instant, on ouvre les détails pour changer le statut
         setSelectedTicket(ticket);
         setShowTicketDetails(true);
+        showAlertMessage(`Ouverture des détails du ticket #${ticketId}`, 'info');
         break;
       case 'addComment':
         setSelectedTicket(ticket);
         setShowTicketDetails(true);
+        showAlertMessage(`Ajout de commentaire au ticket #${ticketId}`, 'info');
         break;
       case 'details':
         setSelectedTicket(ticket);
         setShowTicketDetails(true);
+        showAlertMessage(`Consultation des détails du ticket #${ticketId}`, 'info');
         break;
       default:
         break;
@@ -347,6 +463,11 @@ const Dashboard = () => {
           <TechnicianHeader 
             onSearch={handleSearch}
             onNotificationClick={() => showToast('Notifications développées bientôt!', 'info')}
+            onProfileClick={handleProfileClick}
+            onSettingsClick={handleSettingsClick}
+            onLogout={handleLogout}
+            onNewTicket={() => setShowNewTicketModal(true)}
+            onViewAllNotifications={handleViewAllNotifications}
             technicianName={user.firstname}
           />
 
@@ -362,6 +483,7 @@ const Dashboard = () => {
             tickets={[...tickets, ...availableTickets]}
             onTicketAction={handleTicketAction}
             onTicketClick={handleTicketClick}
+            onNewTicket={() => setShowNewTicketModal(true)}
             currentUser={user}
             filteredStatus={activeFilter}
             searchTerm={searchTerm}
@@ -377,6 +499,8 @@ const Dashboard = () => {
               }}
               onStatusChange={handleTicketStatusUpdate}
               onUpdate={loadDashboardData}
+              onTransferTicket={handleTransferTicket}
+              currentUser={user}
             />
           )}
         </div>
@@ -405,6 +529,56 @@ const Dashboard = () => {
           onClose={() => setShowCreateModal(false)}
           onTicketCreated={handleTicketCreated}
         />
+      )}
+
+      {/* Nouveaux modaux pour technicien */}
+      {showNewTicketModal && (
+        <NewTicketModal
+          isOpen={showNewTicketModal}
+          onClose={() => setShowNewTicketModal(false)}
+          onSubmit={(ticketData) => {
+            console.log('Nouveau ticket:', ticketData);
+            setShowNewTicketModal(false);
+            showAlertMessage('Nouveau ticket créé avec succès !', 'success');
+            loadDashboardData();
+          }}
+        />
+      )}
+
+      {showProfileModal && (
+        <ProfileModal
+          isOpen={showProfileModal}
+          onClose={() => setShowProfileModal(false)}
+          user={user}
+        />
+      )}
+
+      {showSettingsModal && (
+        <SettingsModal
+          isOpen={showSettingsModal}
+          onClose={() => setShowSettingsModal(false)}
+        />
+      )}
+
+      {showNotificationsModal && (
+        <NotificationsModal
+          isOpen={showNotificationsModal}
+          onClose={() => setShowNotificationsModal(false)}
+          onTicketClick={handleTicketClickFromNotification}
+        />
+      )}
+
+      {/* Système d'alerte */}
+      {alertMessage.visible && (
+        <div className={`alert-message alert-${alertMessage.type}`}>
+          <span>{alertMessage.text}</span>
+          <button 
+            className="alert-close" 
+            onClick={() => setAlertMessage(prev => ({ ...prev, visible: false }))}
+          >
+            ×
+          </button>
+        </div>
       )}
 
       {/* Toast notifications */}

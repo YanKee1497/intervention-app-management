@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import '../styles/TechnicianTicketDetailsModal.css';
+import TransferTicketModal from './modals/TransferTicketModal';
+import TransferHistory from './modals/TransferHistory';
 
 const TechnicianTicketDetailsModal = ({ 
   ticket, 
@@ -8,12 +10,14 @@ const TechnicianTicketDetailsModal = ({
   onStatusChange, 
   onAddComment, 
   onAddFile, 
+  onTransferTicket,
   currentUser 
 }) => {
   const [newComment, setNewComment] = useState('');
   const [isAddingComment, setIsAddingComment] = useState(false);
   const [selectedStatus, setSelectedStatus] = useState(ticket?.status || 'pending');
   const [showStatusChange, setShowStatusChange] = useState(false);
+  const [showTransferModal, setShowTransferModal] = useState(false);
 
   if (!isOpen || !ticket) return null;
 
@@ -53,6 +57,16 @@ const TechnicianTicketDetailsModal = ({
     if (selectedStatus !== ticket.status) {
       await onStatusChange?.(ticket.id, selectedStatus);
       setShowStatusChange(false);
+    }
+  };
+
+  const handleTransferTicket = async (transferData) => {
+    try {
+      await onTransferTicket?.(transferData);
+      setShowTransferModal(false);
+    } catch (error) {
+      console.error('Erreur lors du transfert:', error);
+      throw error;
     }
   };
 
@@ -273,6 +287,11 @@ const TechnicianTicketDetailsModal = ({
                     </button>
                   )}
                 </div>
+
+                {/* Historique des transferts */}
+                {ticket.transfer_history && ticket.transfer_history.length > 0 && (
+                  <TransferHistory transfers={ticket.transfer_history} />
+                )}
               </div>
             </div>
           </div>
@@ -343,6 +362,15 @@ const TechnicianTicketDetailsModal = ({
             <button className="print-btn" title="Imprimer">
               🖨️ Imprimer
             </button>
+            {canModifyTicket() && ticket.status !== 'resolved' && (
+              <button 
+                className="transfer-btn"
+                onClick={() => setShowTransferModal(true)}
+                title="Transférer vers un autre technicien"
+              >
+                🔄 Transférer
+              </button>
+            )}
           </div>
           <div className="footer-right">
             <button className="cancel-btn" onClick={onClose}>
@@ -359,6 +387,15 @@ const TechnicianTicketDetailsModal = ({
           </div>
         </div>
       </div>
+
+      {/* Modal de transfert */}
+      <TransferTicketModal
+        isOpen={showTransferModal}
+        onClose={() => setShowTransferModal(false)}
+        ticket={ticket}
+        currentUser={currentUser}
+        onTransfer={handleTransferTicket}
+      />
     </div>
   );
 };

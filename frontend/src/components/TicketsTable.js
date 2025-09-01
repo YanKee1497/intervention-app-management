@@ -13,8 +13,31 @@ const TicketsTable = ({
   const [sortDirection, setSortDirection] = useState('desc');
   const [viewMode, setViewMode] = useState('table'); // 'table' ou 'kanban'
 
-  // Filtrage et tri des tickets
+  // Protection renforcée contre les données non chargées
+  if (!tickets || !Array.isArray(tickets)) {
+    return (
+      <div className="tickets-table-container">
+        <div className="loading-message">
+          <p>Chargement des tickets...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Protection supplémentaire pour currentUser
+  if (!currentUser || !currentUser.id) {
+    return (
+      <div className="tickets-table-container">
+        <div className="loading-message">
+          <p>Chargement du profil utilisateur...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Filtrage et tri des tickets avec protection renforcée
   const filteredTickets = tickets
+    .filter(ticket => ticket && ticket.id && typeof ticket.id !== 'undefined') // Protection principale
     .filter(ticket => {
       if (filteredStatus && filteredStatus !== 'all') {
         return ticket.status === filteredStatus;
@@ -28,8 +51,8 @@ const TicketsTable = ({
           ticket.ticket_number?.toLowerCase().includes(searchLower) ||
           ticket.title?.toLowerCase().includes(searchLower) ||
           ticket.description?.toLowerCase().includes(searchLower) ||
-          ticket.employee_firstname?.toLowerCase().includes(searchLower) ||
-          ticket.employee_lastname?.toLowerCase().includes(searchLower)
+          ticket.employee?.firstname?.toLowerCase().includes(searchLower) ||
+          ticket.employee?.lastname?.toLowerCase().includes(searchLower)
         );
       }
       return true;
@@ -98,16 +121,34 @@ const TicketsTable = ({
   };
 
   const canTakeTicket = (ticket) => {
-    return (ticket.status === 'pending' || ticket.status === 'assigned') && 
-           (!ticket.technician_id || ticket.technician_id === currentUser?.id);
+    try {
+      if (!currentUser || !currentUser.id || !ticket || !ticket.id) return false;
+      return (ticket.status === 'pending' || ticket.status === 'assigned') && 
+             (!ticket.technician_id || ticket.technician_id === currentUser.id);
+    } catch (error) {
+      console.warn('Erreur dans canTakeTicket:', error);
+      return false;
+    }
   };
 
   const canUpdateStatus = (ticket) => {
-    return ticket.technician_id === currentUser?.id || currentUser?.role === 'admin' || currentUser?.role === 'manager';
+    try {
+      if (!currentUser || !currentUser.id || !ticket || !ticket.id) return false;
+      return ticket.technician_id === currentUser.id || currentUser.role === 'admin' || currentUser.role === 'manager';
+    } catch (error) {
+      console.warn('Erreur dans canUpdateStatus:', error);
+      return false;
+    }
   };
 
   const canStartWork = (ticket) => {
-    return ticket.status === 'assigned' && ticket.technician_id === currentUser?.id;
+    try {
+      if (!currentUser || !currentUser.id || !ticket || !ticket.id) return false;
+      return ticket.status === 'assigned' && ticket.technician_id === currentUser.id;
+    } catch (error) {
+      console.warn('Erreur dans canStartWork:', error);
+      return false;
+    }
   };
 
   const formatDate = (dateString) => {
@@ -123,7 +164,7 @@ const TicketsTable = ({
   };
 
   if (viewMode === 'kanban') {
-    return <KanbanView tickets={filteredTickets} onTicketAction={onTicketAction} />;
+    return <KanbanView tickets={filteredTickets} onTicketAction={onTicketAction} currentUser={currentUser} />;
   }
 
   return (
@@ -222,7 +263,13 @@ const TicketsTable = ({
               </tr>
             </thead>
             <tbody>
-              {filteredTickets.map((ticket, index) => (
+              {filteredTickets.map((ticket, index) => {
+                // Protection contre les tickets undefined
+                if (!ticket || !ticket.id) {
+                  return null;
+                }
+                
+                return (
                 <tr 
                   key={ticket.id} 
                   className={`ticket-row ${index % 2 === 0 ? 'even' : 'odd'}`}
@@ -252,10 +299,10 @@ const TicketsTable = ({
                   <td className="employee">
                     <div className="employee-info">
                       <span className="employee-name">
-                        {ticket.employee_firstname} {ticket.employee_lastname}
+                        {ticket.employee?.firstname || 'N/A'} {ticket.employee?.lastname || 'N/A'}
                       </span>
                       <span className="employee-email">
-                        {ticket.employee_email}
+                        {ticket.employee?.email || 'N/A'}
                       </span>
                     </div>
                   </td>
@@ -270,7 +317,7 @@ const TicketsTable = ({
                   </td>
                   <td className="actions" onClick={(e) => e.stopPropagation()}>
                     <div className="action-buttons">
-                      {canTakeTicket(ticket) && ticket.status === 'pending' && (
+                      {ticket && ticket.id && canTakeTicket(ticket) && ticket.status === 'pending' && (
                         <button
                           className="action-btn take-btn"
                           onClick={() => onTicketAction('take', ticket.id)}
@@ -280,7 +327,7 @@ const TicketsTable = ({
                         </button>
                       )}
                       
-                      {canStartWork(ticket) && (
+                      {ticket && ticket.id && canStartWork(ticket) && (
                         <button
                           className="action-btn start-btn"
                           onClick={() => onTicketAction('start', ticket.id)}
@@ -290,7 +337,7 @@ const TicketsTable = ({
                         </button>
                       )}
                       
-                      {canUpdateStatus(ticket) && ticket.status !== 'resolved' && (
+                      {ticket && ticket.id && canUpdateStatus(ticket) && ticket.status !== 'resolved' && (
                         <button
                           className="action-btn status-btn"
                           onClick={() => onTicketAction('updateStatus', ticket.id)}
@@ -300,25 +347,30 @@ const TicketsTable = ({
                         </button>
                       )}
                       
-                      <button
-                        className="action-btn comment-btn"
-                        onClick={() => onTicketAction('addComment', ticket.id)}
-                        title="Ajouter un commentaire"
-                      >
-                        💬
-                      </button>
+                      {ticket && ticket.id && (
+                        <button
+                          className="action-btn comment-btn"
+                          onClick={() => onTicketAction('addComment', ticket.id)}
+                          title="Ajouter un commentaire"
+                        >
+                          💬
+                        </button>
+                      )}
                       
-                      <button
-                        className="action-btn details-btn"
-                        onClick={() => onTicketAction('details', ticket.id)}
-                        title="Voir les détails"
-                      >
-                        👁️
-                      </button>
+                      {ticket && ticket.id && (
+                        <button
+                          className="action-btn details-btn"
+                          onClick={() => onTicketAction('details', ticket.id)}
+                          title="Voir les détails"
+                        >
+                          👁️
+                        </button>
+                      )}
                     </div>
                   </td>
                 </tr>
-              ))}
+                );
+              })}
             </tbody>
           </table>
         )}
@@ -328,7 +380,7 @@ const TicketsTable = ({
 };
 
 // Composant Vue Kanban (simplifié)
-const KanbanView = ({ tickets, onTicketAction }) => {
+const KanbanView = ({ tickets, onTicketAction, currentUser }) => {
   const statusColumns = [
     { key: 'pending', title: 'Non pris en charge', color: '#e17055' },
     { key: 'assigned', title: 'En attente', color: '#fdcb6e' },
@@ -337,7 +389,7 @@ const KanbanView = ({ tickets, onTicketAction }) => {
   ];
 
   const getTicketsByStatus = (status) => {
-    return tickets.filter(ticket => ticket.status === status);
+    return tickets.filter(ticket => ticket && ticket.id && ticket.status === status);
   };
 
   return (
@@ -355,7 +407,13 @@ const KanbanView = ({ tickets, onTicketAction }) => {
               </span>
             </div>
             <div className="kanban-tickets">
-              {getTicketsByStatus(column.key).map(ticket => (
+              {getTicketsByStatus(column.key).map(ticket => {
+                // Protection contre les tickets undefined
+                if (!ticket || !ticket.id) {
+                  return null;
+                }
+                
+                return (
                 <div key={ticket.id} className="kanban-ticket">
                   <div className="kanban-ticket-header">
                     <strong>{ticket.ticket_number}</strong>
@@ -368,10 +426,11 @@ const KanbanView = ({ tickets, onTicketAction }) => {
                   </div>
                   <h4>{ticket.title}</h4>
                   <p className="kanban-employee">
-                    👤 {ticket.employee_firstname} {ticket.employee_lastname}
+                    👤 {ticket.employee?.firstname || 'N/A'} {ticket.employee?.lastname || 'N/A'}
                   </p>
                 </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         ))}

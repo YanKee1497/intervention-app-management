@@ -684,3 +684,199 @@
     flex: 0 0 200px;
   }
 }
+
+/* Styles pour le drag and drop */
+.kanban-card[draggable="true"] {
+  cursor: grab;
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+}
+
+.kanban-card[draggable="true"]:active {
+  cursor: grabbing;
+}
+
+.kanban-card.dragging {
+  opacity: 0.5;
+  transform: rotate(5deg);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+}
+
+.kanban-column.drag-over {
+  background: #e8f4fd;
+  border: 2px dashed #667eea;
+  transform: scale(1.02);
+  transition: all 0.2s ease;
+}
+
+.kanban-column.drag-over .kanban-column-header {
+  background: rgba(102, 126, 234, 0.1) !important;
+}
+
+.kanban-column.drag-over .kanban-empty-state {
+  background: rgba(102, 126, 234, 0.05);
+  border: 1px dashed #667eea;
+  border-radius: 8px;
+  color: #667eea;
+  font-weight: 600;
+}
+
+.kanban-column.drag-over .kanban-empty-state .empty-icon {
+  color: #667eea;
+  opacity: 1;
+  animation: bounce 0.5s ease-in-out infinite alternate;
+}
+
+.drag-help-text {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 12px 20px;
+  border-radius: 25px;
+  font-size: 14px;
+  z-index: 1000;
+  animation: slideUp 0.3s ease-out;
+}
+
+@keyframes bounce {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(-5px);
+  }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateX(-50%) translateY(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(-50%) translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Amélioration visuelle des cartes en drag */
+.kanban-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.kanban-card[draggable="true"]:hover {
+  border-left-color: #667eea;
+}
+
+/* Zone de drop highlight */
+.kanban-column-content {
+  min-height: 200px;
+  position: relative;
+}
+
+.kanban-column.drag-over .kanban-column-content {
+  background: rgba(102, 126, 234, 0.03);
+  border-radius: 8px;
+}
+
+/* Animation des transitions */
+.kanban-card {
+  transition: all 0.2s ease-in-out;
+}
+
+.kanban-column {
+  transition: all 0.2s ease-in-out;
+}
+
+/* Styles pour les boutons d'action du tableau */
+.action-buttons {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.action-btn {
+  background: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 14px;
+  color: #666;
+}
+
+.action-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.action-btn.view-btn {
+  border-color: #2196f3;
+  color: #2196f3;
+}
+
+.action-btn.view-btn:hover {
+  background: #2196f3;
+  color: white;
+}
+
+.action-btn.take-btn {
+  border-color: #667eea;
+  color: #667eea;
+}
+
+.action-btn.take-btn:hover {
+  background: #667eea;
+  color: white;
+}
+
+.action-btn.start-btn {
+  border-color: #f39c12;
+  color: #f39c12;
+}
+
+.action-btn.start-btn:hover {
+  background: #f39c12;
+  color: white;
+}
+
+.action-btn.resolve-btn {
+  border-color: #27ae60;
+  color: #27ae60;
+}
+
+.action-btn.resolve-btn:hover {
+  background: #27ae60;
+  color: white;
+}
+
+.action-btn.transfer-btn {
+  border-color: #3498db;
+  color: #3498db;
+}
+
+.action-btn.transfer-btn:hover {
+  background: #3498db;
+  color: white;
+}
+
+.action-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.action-btn:disabled:hover {
+  transform: none;
+  box-shadow: none;
+}

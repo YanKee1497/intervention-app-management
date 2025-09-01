@@ -649,7 +649,8 @@
 }
 
 .export-btn,
-.print-btn {
+.print-btn,
+.transfer-btn {
   background: #636e72;
   color: white;
 }
@@ -657,6 +658,15 @@
 .export-btn:hover,
 .print-btn:hover {
   background: #2d3436;
+  transform: translateY(-2px);
+}
+
+.transfer-btn {
+  background: linear-gradient(135deg, #6c5ce7, #a29bfe);
+}
+
+.transfer-btn:hover {
+  background: linear-gradient(135deg, #5f3dc4, #9775fa);
   transform: translateY(-2px);
 }
 
