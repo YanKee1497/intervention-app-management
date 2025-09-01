@@ -1,19 +1,14 @@
 import React from 'react';
 import { useAuth } from '../context/AuthContext';
-import './employee-dashboard.css';
 
 // Import des différentes interfaces
+import TicketsDashboard from '../pages/TicketsDashboard';
 import TechnicianDashboard from './technician/TechnicianDashboard';
 import AdminDashboard from './admin/AdminDashboard';
 
 // Interface Employé
 function EmployeeDashboard() {
-  return (
-    <div className="employee-dashboard">
-      <h1>Dashboard Employé</h1>
-      <p>Interface employé en cours de développement...</p>
-    </div>
-  );
+  return <TicketsDashboard />;
 }
 
 // Interface Gestionnaire
