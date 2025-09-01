@@ -3,12 +3,39 @@ import { useAuth } from '../context/AuthContext';
 
 // Import des différentes interfaces
 import TicketsDashboard from '../pages/TicketsDashboard';
-import TechnicianDashboard from './technician/TechnicianDashboard';
 import AdminDashboard from './admin/AdminDashboard';
 
 // Interface Employé
 function EmployeeDashboard() {
   return <TicketsDashboard />;
+}
+
+// Interface Technicien - Version inline pour éviter les problèmes d'import
+function TechnicianDashboard() {
+  const { user } = useAuth();
+  
+  return (
+    <div style={{
+      padding: '2rem',
+      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+      minHeight: '100vh',
+      color: 'white',
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'center'
+    }}>
+      <h1 style={{ fontSize: '3rem', marginBottom: '1rem', textShadow: '2px 2px 4px rgba(0, 0, 0, 0.3)' }}>
+        Dashboard Technicien
+      </h1>
+      <p style={{ fontSize: '1.2rem', opacity: 0.9, marginBottom: '1rem' }}>
+        Bienvenue {user?.username} !
+      </p>
+      <p style={{ fontSize: '1rem', opacity: 0.8 }}>
+        Interface technicien (version inline)
+      </p>
+    </div>
+  );
 }
 
 // Interface Gestionnaire
