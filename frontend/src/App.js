@@ -3,138 +3,129 @@ import React, { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import Dashboard from './components/Dashboard';
 import { useAuth, AuthProvider } from './context/AuthContext';
-// import Header from './components/Header';
-// import HeaderSimple from './components/HeaderSimple';
 
-// Composant de connexion simplifié (mode local)
+// Composant de connexion simplifié
 function SimpleLogin() {
   const [email, setEmail] = useState('admin@entreprise.com');
   const [password, setPassword] = useState('password123');
-  const [error, setError] = useState('');
-  const { login, loading } = useAuth();
+  const [role, setRole] = useState('admin');
+  const [loading, setLoading] = useState(false);
+  const { login } = useAuth();
   const navigate = useNavigate();
-
-  console.log('🔍 SimpleLogin rendered - login function:', typeof login, 'loading:', loading);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('🔴 Bouton cliqué - handleSubmit called with:', { email, password: '***' });
-    setError('');
+    setLoading(true);
     
-    // Mode local - connexion simple
-    if (email && password) {
-      try {
-        console.log('🚀 Tentative de connexion avec:', email);
-        const result = await login(email, password);
-        console.log('✅ Connexion réussie ! Résultat:', result);
-        console.log('🚀 Redirection vers le dashboard...');
-        navigate('/');
-      } catch (error) {
-        console.error('❌ Erreur lors de la connexion:', error);
-        setError('Erreur de connexion. Vérifiez vos identifiants.');
+    try {
+      if (email && password && role) {
+        await login({ email, role });
+        navigate('/dashboard');
+      } else {
+        alert('Veuillez remplir tous les champs');
       }
-    } else {
-      setError('Veuillez saisir un email et un mot de passe.');
+    } catch (error) {
+      console.error('Erreur de connexion:', error);
+      alert('Erreur de connexion');
+    } finally {
+      setLoading(false);
     }
   };
 
-  const handleTestLogin = () => {
-    console.log('🧪 Test de connexion directe');
-    setEmail('admin@entreprise.com');
-    setPassword('password123');
-    handleSubmit({ preventDefault: () => {} });
-  };
-
   return (
-    <div style={{
-      minHeight: '100vh',
-      display: 'flex',
-      alignItems: 'center',
+    <div style={{ 
+      minHeight: '100vh', 
+      display: 'flex', 
+      alignItems: 'center', 
       justifyContent: 'center',
-      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
+      backgroundColor: '#f5f5f5'
     }}>
-      <div style={{
-        background: 'rgba(255, 255, 255, 0.95)',
-        padding: '40px',
-        borderRadius: '20px',
-        width: '400px',
-        maxWidth: '90vw',
-        boxShadow: '0 20px 40px rgba(0,0,0,0.1)',
-        backdropFilter: 'blur(10px)'
+      <div style={{ 
+        backgroundColor: 'white', 
+        padding: '2rem', 
+        borderRadius: '8px', 
+        boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
+        width: '100%',
+        maxWidth: '400px'
       }}>
-        <div style={{ textAlign: 'center', marginBottom: '30px' }}>
-          <h1 style={{ margin: '0 0 10px 0', color: '#2d3436', fontSize: '24px' }}>
-            🔒 Connexion
-          </h1>
-        </div>
+        <h1 style={{ textAlign: 'center', marginBottom: '2rem', color: '#333' }}>
+          Connexion - Gestion d'Interventions
+        </h1>
         
         <form onSubmit={handleSubmit}>
-          <div style={{ marginBottom: '20px' }}>
-            <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: '#2d3436' }}>
-              Email :
+          <div style={{ marginBottom: '1rem' }}>
+            <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>
+              Email:
             </label>
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              required
               style={{
                 width: '100%',
-                padding: '12px',
+                padding: '0.75rem',
                 border: '1px solid #ddd',
-                borderRadius: '8px',
-                fontSize: '16px'
+                borderRadius: '4px',
+                fontSize: '1rem'
               }}
-              placeholder="employe1@entreprise.com"
-              required
             />
           </div>
           
-          <div style={{ marginBottom: '20px' }}>
-            <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: '#2d3436' }}>
-              Mot de passe :
+          <div style={{ marginBottom: '1.5rem' }}>
+            <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>
+              Mot de passe:
             </label>
             <input
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              required
               style={{
                 width: '100%',
-                padding: '12px',
+                padding: '0.75rem',
                 border: '1px solid #ddd',
-                borderRadius: '8px',
-                fontSize: '16px'
+                borderRadius: '4px',
+                fontSize: '1rem'
               }}
-              placeholder="••••••••••"
-              required
             />
           </div>
-
-          {error && (
-            <div style={{
-              padding: '10px',
-              background: '#ff7675',
-              color: 'white',
-              borderRadius: '8px',
-              marginBottom: '20px',
-              fontSize: '14px'
-            }}>
-              {error}
-            </div>
-          )}
+          
+          <div style={{ marginBottom: '1.5rem' }}>
+            <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>
+              Rôle:
+            </label>
+            <select
+              value={role}
+              onChange={(e) => setRole(e.target.value)}
+              required
+              style={{
+                width: '100%',
+                padding: '0.75rem',
+                border: '1px solid #ddd',
+                borderRadius: '4px',
+                fontSize: '1rem',
+                backgroundColor: 'white'
+              }}
+            >
+              <option value="admin">Administrateur</option>
+              <option value="technician">Technicien</option>
+              <option value="employee">Employé</option>
+              <option value="manager">Manager</option>
+            </select>
+          </div>
           
           <button
             type="submit"
             disabled={loading}
-            onClick={() => console.log('🔴 Bouton cliqué!')}
             style={{
               width: '100%',
-              padding: '14px',
-              background: loading ? '#ccc' : 'linear-gradient(135deg, #0984e3, #74b9ff)',
+              padding: '0.75rem',
+              backgroundColor: loading ? '#ccc' : '#007bff',
               color: 'white',
               border: 'none',
-              borderRadius: '8px',
-              fontSize: '16px',
-              fontWeight: '600',
+              borderRadius: '4px',
+              fontSize: '1rem',
               cursor: loading ? 'not-allowed' : 'pointer'
             }}
           >
@@ -142,69 +133,41 @@ function SimpleLogin() {
           </button>
         </form>
         
-        {/* Bouton de test pour diagnostiquer */}
-        <button
-          onClick={handleTestLogin}
-          style={{
-            width: '100%',
-            padding: '10px',
-            background: 'linear-gradient(135deg, #00b894, #55efc4)',
-            color: 'white',
-            border: 'none',
-            borderRadius: '8px',
-            fontSize: '14px',
-            fontWeight: '600',
-            cursor: 'pointer',
-            marginTop: '10px'
-          }}
-        >
-          🧪 Test de connexion automatique
-        </button>
-        
-        <div style={{ marginTop: '30px', fontSize: '14px', color: '#636e72' }}>
-          <strong>Comptes de test :</strong><br/>
-          admin@entreprise.com / password123<br/>
-          manager@entreprise.com / password123<br/>
-          technicien1@entreprise.com / password123<br/>
-          technicien2@entreprise.com / password123<br/>
-          employe1@entreprise.com / password123<br/>
-          employe2@entreprise.com / password123
+        <div style={{ marginTop: '1rem', fontSize: '0.9rem', color: '#666', textAlign: 'center' }}>
+          <p>Compte de test:</p>
+          <p>Email: admin@entreprise.com</p>
+          <p>Mot de passe: password123</p>
         </div>
       </div>
     </div>
   );
 }
 
-// Dashboard pour employé
-function EmployeeDashboard() {
-  return <Dashboard />;
-}
-
-// Composant pour protéger les routes
+// Composant de route protégée
 function ProtectedRoute({ children }) {
   const { user } = useAuth();
-  console.log('🔍 ProtectedRoute - user:', user);
-  return user ? children : <Navigate to="/login" />;
+  return user ? children : <Navigate to="/login" replace />;
 }
 
-// Composant principal
+// Composant principal de l'application
 function App() {
-  console.log('🔍 App principal chargé');
-  
   return (
     <AuthProvider>
       <Router>
-        <Routes>
-          <Route path="/login" element={<SimpleLogin />} />
-          <Route 
-            path="/" 
-            element={
-              <ProtectedRoute>
-                <EmployeeDashboard />
-              </ProtectedRoute>
-            } 
-          />
-        </Routes>
+        <div className="App">
+          <Routes>
+            <Route path="/login" element={<SimpleLogin />} />
+            <Route 
+              path="/dashboard" 
+              element={
+                <ProtectedRoute>
+                  <Dashboard />
+                </ProtectedRoute>
+              } 
+            />
+            <Route path="/" element={<Navigate to="/dashboard" replace />} />
+          </Routes>
+        </div>
       </Router>
     </AuthProvider>
   );
